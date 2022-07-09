@@ -18,7 +18,6 @@ import ColourSelectView from './views/ColourSelectView.vue';
 </script>
 
 <style lang="postcss">
-@import url('../node_modules/@mdi/font/css/materialdesignicons.css');
 @import './assets/tailwind.css';
 
 main {

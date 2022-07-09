@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "color": "^4.2.3",
+    "d3-ease": "^3.0.1",
     "d3-format": "^3.1.0",
+    "d3-interpolate": "^3.0.1",
     "d3-scale": "^4.0.2",
     "d3-scale-chromatic": "^3.0.0",
+    "hsluv": "^0.1.0",
     "lodash": "^4.17.21",
     "lucide-vue-next": "^0.73.0",
     "tailwindcss": "^3.0.24",
@@ -22,7 +25,9 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
     "@types/color": "^3.0.3",
+    "@types/d3-ease": "^3.0.0",
     "@types/d3-format": "^3.0.1",
+    "@types/d3-interpolate": "^3.0.1",
     "@types/d3-scale": "^4.0.2",
     "@types/d3-scale-chromatic": "^3.0.0",
     "@types/jsdom": "^16.2.14",
