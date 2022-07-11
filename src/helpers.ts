@@ -4,7 +4,8 @@ import { easeQuadOut } from 'd3-ease'
 import { interpolateNumber } from 'd3-interpolate';
 import { interpolateSinebow } from 'd3-scale-chromatic';
 import { format } from 'd3-format';
-import hsluv from 'hsluv';
+import hsluv, { hsluvToLch } from 'hsluv';
+import type { HSLuvColour } from './types';
 
 export const gamutColours = _.range(0, 0.876, 0.125)
     .map(n => ({
@@ -12,7 +13,7 @@ export const gamutColours = _.range(0, 0.876, 0.125)
         gradientPct: format('%')(n + 0.05)
     }));
 
-export function rgbToHsluv(hexOrRgb: string): [number, number, number] {
+export function rgbToHsluv(hexOrRgb: string): HSLuvColour {
     const colour = Color.rgb(hexOrRgb);
     return hsluv.rgbToHsluv([
         colour.red() / 255,
@@ -21,13 +22,74 @@ export function rgbToHsluv(hexOrRgb: string): [number, number, number] {
     ]);
 }
 
-export function hsluvToRgb(parts: [number, number, number]): string {
+export function hsluvToRgb(parts: HSLuvColour): string {
     const pcts = hsluv.hsluvToRgb(parts);
     return Color.rgb([
         pcts[0] * 255,
         pcts[1] * 255,
         pcts[2] * 255
     ]).string();
+}
+
+// https://gist.github.com/ryancat/9972419b2a78f329ce3aebb7f1a09152
+export function deltaE(hslA: HSLuvColour, hslB: HSLuvColour): number {
+    const labA = hsluvToLch(hslA);
+    const labB = hsluvToLch(hslB);
+    const deltaL = labA[0] - labB[0];
+    const deltaA = labA[1] - labB[1];
+    const deltaB = labA[2] - labB[2];
+    const c1 = Math.sqrt(labA[1] * labA[1] + labA[2] * labA[2]);
+    const c2 = Math.sqrt(labB[1] * labB[1] + labB[2] * labB[2]);
+    const deltaC = c1 - c2;
+    let deltaH = deltaA * deltaA + deltaB * deltaB - deltaC * deltaC;
+    deltaH = deltaH < 0 ? 0 : Math.sqrt(deltaH);
+    const sc = 1.0 + 0.045 * c1;
+    const sh = 1.0 + 0.015 * c1;
+    const deltaLKlsl = deltaL / (1.0);
+    const deltaCkcsc = deltaC / (sc);
+    const deltaHkhsh = deltaH / (sh);
+    const i = deltaLKlsl * deltaLKlsl + deltaCkcsc * deltaCkcsc + deltaHkhsh * deltaHkhsh;
+    return i < 0 ? 0 : Math.sqrt(i) / 100; // as 0 -> 1
+}
+
+export function getRandomColourFromColours(
+    rgbColours: string[],
+    minDifference = 0.1,
+    saturation: [number, number] = [0.4, 1],
+    lightness: [number, number] = [0.2, 0.8]
+): string {
+    let tries = 0;
+    while (tries < 100) {
+        const randomHSLuvColour: HSLuvColour = [
+            Math.random() * 360,
+            _.random(saturation[0], saturation[1], true) * 100,
+            _.random(lightness[0], lightness[1], true) * 100
+        ];
+
+        if (!rgbColours.some(c => deltaE(randomHSLuvColour, rgbToHsluv(c)) < minDifference)) {
+            return hsluvToRgb(randomHSLuvColour);
+        }
+        tries += 1;
+    }
+    return 'black';
+}
+
+export function generateRandomColours(
+    numColours: number,
+    minDifference = 0.1,
+    saturation: [number, number] = [0.4, 1],
+    lightness: [number, number] = [0.2, 0.8]
+): string[] {
+    const colours: string[] = [];
+    _.times(numColours, () => {
+        colours.push(getRandomColourFromColours(
+            colours,
+            minDifference,
+            saturation,
+            lightness
+        ));
+    });
+    return colours;
 }
 
 export function sequentialColourScale(
@@ -53,7 +115,7 @@ export function sequentialColourScale(
 
     return _.times(numColours, n => {
         const interp = n / (numColours - 1);
-        const hsluvResult: [number, number, number] = [
+        const hsluvResult: HSLuvColour = [
             hue(interp) % 360,
             sat(interp),
             lgt(easeQuadOut(interp))

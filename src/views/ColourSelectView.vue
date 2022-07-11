@@ -10,29 +10,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import ColourBlock from '@/components/ColourBlock/ColourBlock.vue';
-import Color from 'color';
-import { sequentialColourScale } from '@/helpers';
+import { generateRandomColours } from '@/helpers';
 
-const baseColour = ref(Color.rgb('#2472ED').string())
-
-const colours = computed(() => {
-    return sequentialColourScale(
-        baseColour.value,
-        5,
-        {
-            hueShift: -0.2,
-            saturationShift: 0,
-            lightnessShift: 1
-        }
-    ) ?? []
-});
+const colours = ref(generateRandomColours(5, 0.2))
 </script>
 
 <style lang="postcss" scoped>
 #colour-select {
-    @apply flex h-32;
+    @apply flex h-48;
 
     .select-block {
         @apply flex-1;

@@ -20,7 +20,8 @@ module.exports = {
             '4xl': '1921px'
         },
         fontFamily: {
-            default: ['Bitter', 'serif']
+            default: ['Bitter', 'serif'],
+            sans: ['Albert Sans', 'sans-serif']
         },
         extend: {
             colors: {
