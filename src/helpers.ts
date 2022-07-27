@@ -76,12 +76,15 @@ export function getRandomColourFromColours(
 
 export function generateRandomColours(
     numColours: number,
-    minDifference = 0.1,
+    initColours: string[] = [],
+    minDifference = 0.2,
     saturation: [number, number] = [0.4, 1],
     lightness: [number, number] = [0.2, 0.8]
 ): string[] {
-    const colours: string[] = [];
-    _.times(numColours, () => {
+    if (initColours.length >= numColours) return initColours;
+
+    const colours = [...initColours];
+    _.times(numColours - colours.length, () => {
         colours.push(getRandomColourFromColours(
             colours,
             minDifference,

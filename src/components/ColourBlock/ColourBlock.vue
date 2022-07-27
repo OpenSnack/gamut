@@ -11,21 +11,34 @@
                 'border-color': inputShade
             }"
         />
-        <lock :color="inputShade" />
+        <lock
+            v-if="locked"
+            class="lock-icon"
+            :color="inputShade"
+            @click="emit('lock', false)"
+        />
+        <unlock 
+            v-else
+            class="lock-icon"
+            :color="inputShade"
+            @click="emit('lock', true)"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import Color from 'color';
-import { Lock } from 'lucide-vue-next';
+import { Lock, Unlock } from 'lucide-vue-next';
 
 const props = defineProps<{
-    colour: string
+    colour: string;
+    locked: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
     (e: 'select', colour: string): void,
+    (e: 'lock', locked: boolean): void
 }>();
 
 const inputShade = computed(() => {
@@ -42,6 +55,10 @@ const inputShade = computed(() => {
 
     input {
         @apply font-sans text-xl text-center w-4/5 max-w-[200px] bg-transparent border-b border-dotted outline-none;
+    }
+
+    .lock-icon {
+        @apply cursor-pointer;
     }
 }
 </style>
