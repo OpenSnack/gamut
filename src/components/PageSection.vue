@@ -10,7 +10,10 @@
             <div class="title">{{ title }}</div>
             <chevron-right :transform="`rotate(${open ? '90' : '0'})`" />
         </div>
-        <div v-if="open" class="section-content">
+        <div
+            class="section-content"
+            :class="{ hidden: !open }"
+        >
             <slot name="content" />
         </div>
     </section>
