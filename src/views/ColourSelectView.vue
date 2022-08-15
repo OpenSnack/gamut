@@ -1,11 +1,7 @@
 <template>
     <div id="colour-select">
         <div class="group-buttons">
-            <refresh-cw
-                class="group-button"
-                size="48"
-                @click="refreshRandom"
-            />
+            <refresh-icon @refresh="refreshRandom" />
         </div>
         <colour-block
             v-for="(colour, i) in randomColours"
@@ -21,9 +17,10 @@
 <script setup lang="ts">
 import ColourBlock from '@/components/ColourBlock/ColourBlock.vue';
 import useStore from '@/store';
-import { RefreshCw } from 'lucide-vue-next';
+import RefreshIcon from '../components/RefreshIcon.vue';
 
 const { randomColours, randomLocks, setRandomLock, refreshRandom } = useStore();
+
 </script>
 
 <style lang="postcss" scoped>
@@ -32,10 +29,6 @@ const { randomColours, randomLocks, setRandomLock, refreshRandom } = useStore();
 
     .group-buttons {
         @apply mr-4;
-        
-        .group-button {
-            @apply cursor-pointer;
-        }
     }
 
     .select-block {
