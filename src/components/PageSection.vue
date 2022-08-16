@@ -36,7 +36,6 @@ const numberBG = computed(() => `bg-rainbow-${_.round(_.clamp(props.number, 0, 8
 
 <style lang="postcss" scoped>
 section {
-
     .section-header {
         @apply flex items-center font-bold my-4 cursor-pointer select-none;
 

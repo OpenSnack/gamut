@@ -14,6 +14,9 @@
             />
         </div>
         <div class="bottom-row">
+            <div class="font-sans mr-2 opacity-50">
+                need a categorical scale?
+            </div>
             <clipboard-button
                 label="copy palette to clipboard"
                 :content="JSON.stringify(randomColours)"
@@ -23,10 +26,10 @@
 </template>
 
 <script setup lang="ts">
-import ColourBlock from '@/components/ColourBlock/ColourBlock.vue';
 import useStore from '@/store';
-import RefreshIcon from '../components/RefreshIcon.vue';
-import ClipboardButton from '../components/ClipboardButton.vue';
+import ColourBlock from '@/components/ColourBlock.vue';
+import ClipboardButton from '@/components/ClipboardButton.vue';
+import RefreshIcon from '@/components/RefreshIcon.vue';
 
 const { randomColours, randomLocks, setRandomLock, refreshRandom } = useStore();
 

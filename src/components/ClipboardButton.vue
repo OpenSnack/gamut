@@ -8,10 +8,10 @@
             ref="clickIcon"
             class="click-icon"
         >
-            <clipboard-check v-if="clicked" />
-            <clipboard-copy v-else />
+            <clipboard-check class="icon" v-if="clicked" />
+            <clipboard-copy class="icon" v-else />
         </div>
-        <div class="label">{{ label }}</div>
+        <div class="button-label">{{ label }}</div>
     </div>
 </template>
 
@@ -50,7 +50,7 @@ const onClick = () => {
         @apply cursor-pointer opacity-100;
     }
 
-    .label {
+    .button-label {
         @apply font-sans pl-1;
     }
 }

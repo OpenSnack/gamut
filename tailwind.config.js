@@ -38,9 +38,10 @@ module.exports = {
                 },
                 gray: {
                     main: 'rgb(135,137,165)'
-                }
+                },
+                offblack: 'rgb(19,20,25)'
             }
         }
     },
-    plugins: [],
+    plugins: []
 };
