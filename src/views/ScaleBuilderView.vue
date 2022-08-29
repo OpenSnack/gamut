@@ -10,11 +10,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 import useStore from '@/store';
 import type { ScaleMode } from '@/store/types';
 import ButtonGroup from "@/components/ButtonGroup/ButtonGroup.vue";
 
-const { scaleMode, setScaleMode } = useStore();
+const store = useStore();
+const { setScaleMode } = store;
+const { scaleMode } = storeToRefs(store);
 
 const baseOptions = [
     { label: 'sequential', value: 'sequential' },

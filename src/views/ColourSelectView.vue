@@ -26,13 +26,15 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import useStore from '@/store';
 import ColourBlock from '@/components/ColourBlock.vue';
 import ClipboardButton from '@/components/ClipboardButton.vue';
 import RefreshIcon from '@/components/RefreshIcon.vue';
 
-const { randomColours, randomLocks, setRandomLock, refreshRandom } = useStore();
-
+const store = useStore();
+const { setRandomLock, refreshRandom } = store;
+const { randomColours, randomLocks } = storeToRefs(store); 
 </script>
 
 <style lang="postcss" scoped>

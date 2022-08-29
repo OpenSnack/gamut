@@ -1,4 +1,5 @@
 import { ref, type Ref } from 'vue';
+import { defineStore } from 'pinia';
 import _ from 'lodash';
 import { generateRandomColours } from '@/helpers';
 import type { ScaleMode } from './types';
@@ -8,7 +9,7 @@ type NumRandomColours = typeof NUM_RANDOM_COLOURS;
 type Tuple<T, N extends number> = [T, ...T[]] & { length: N };
 type Locks = Tuple<boolean, NumRandomColours>;
 
-export default function useStore() {
+export default defineStore('main', () => {
     // properties
     const randomColours = ref(generateRandomColours(NUM_RANDOM_COLOURS));
     const randomLocks = ref<Locks>([false, false, false, false, false]);
@@ -33,6 +34,8 @@ export default function useStore() {
         });
     };
 
+    // TODO: Add reaction when user types new colour into ColourBlock
+
     const setScaleMode = (mode: ScaleMode) => {
         scaleMode.value = mode;
     }
@@ -46,4 +49,4 @@ export default function useStore() {
         setRandomLock,
         setScaleMode
     };
-}
+});
