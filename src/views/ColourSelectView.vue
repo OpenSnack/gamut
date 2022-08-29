@@ -1,6 +1,6 @@
 <template>
     <div id="colour-select">
-        <div class="top-row">
+        <div ref="row" class="top-row">
             <div class="group-buttons">
                 <refresh-icon @refresh="refreshRandom" />
             </div>
@@ -10,6 +10,7 @@
                 class="select-block"
                 :colour="colour"
                 :locked="randomLocks[i]"
+                :height="height"
                 @lock="bool => setRandomLock(i, bool)"
             />
         </div>
@@ -26,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useElementBounding } from '@vueuse/core';
 import useStore from '@/store';
 import ColourBlock from '@/components/ColourBlock.vue';
 import ClipboardButton from '@/components/ClipboardButton.vue';
@@ -33,6 +36,9 @@ import RefreshIcon from '@/components/RefreshIcon.vue';
 
 const { randomColours, randomLocks, setRandomLock, refreshRandom } = useStore();
 
+const row = ref<HTMLDivElement>();
+
+const { height } = useElementBounding(row);
 </script>
 
 <style lang="postcss" scoped>
