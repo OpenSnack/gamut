@@ -11,7 +11,8 @@ import { gamutColours } from '@/helpers';
 
 const rectGradient = computed(() => {
     const gradientValues = gamutColours.map(
-        ({ colour, gradientPct }) => `${colour} ${gradientPct}`);
+        ({ colour, gradientPct }) => `${colour} ${gradientPct}`
+    );
 
     return `linear-gradient(to right, ${gradientValues.join()})`;
 });

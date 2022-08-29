@@ -1,13 +1,19 @@
 <template>
     <section>
-        <div class="section-header" @click="open = !open">
+        <div
+            class="section-header"
+            @click="open = !open"
+            @keydown.enter="open = !open"
+        >
             <div
                 class="number"
                 :class="numberBG"
             >
                 {{ number }}
             </div>
-            <div class="title">{{ title }}</div>
+            <div class="title">
+                {{ title }}
+            </div>
             <chevron-right :transform="`rotate(${open ? '90' : '0'})`" />
         </div>
         <div

@@ -13,7 +13,7 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import useStore from '@/store';
 import type { ScaleMode } from '@/store/types';
-import ButtonGroup from "@/components/ButtonGroup/ButtonGroup.vue";
+import ButtonGroup from '@/components/ButtonGroup/ButtonGroup.vue';
 
 const store = useStore();
 const { setScaleMode } = store;

@@ -3,15 +3,24 @@
         class="clipboard-button"
         :class="{ active: content }"
         @click="onClick"
+        @keydown="onClick"
     >
         <div
             ref="clickIcon"
             class="click-icon"
         >
-            <clipboard-check class="icon" v-if="clicked" />
-            <clipboard-copy class="icon" v-else />
+            <clipboard-check
+                class="icon"
+                v-if="clicked"
+            />
+            <clipboard-copy
+                class="icon"
+                v-else
+            />
         </div>
-        <div class="button-label">{{ label }}</div>
+        <div class="button-label">
+            {{ label }}
+        </div>
     </div>
 </template>
 

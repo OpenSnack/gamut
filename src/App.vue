@@ -1,17 +1,26 @@
 <template>
     <main>
         <gamut-logo class="py-8" />
-        <page-section :number="1" title="Select some base colours">
+        <page-section
+            :number="1"
+            title="Select some base colours"
+        >
             <template #content>
                 <colour-select-view />
             </template>
         </page-section>
-        <page-section :number="2" title="Build your scale">
+        <page-section
+            :number="2"
+            title="Build your scale"
+        >
             <template #content>
                 <scale-builder-view />
             </template>
         </page-section>
-        <page-section :number="3" title="Export your scale" />
+        <page-section
+            :number="3"
+            title="Export your scale"
+        />
     </main>
 </template>
 

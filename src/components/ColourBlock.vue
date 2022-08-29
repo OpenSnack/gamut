@@ -1,10 +1,11 @@
 <template>
     <div
         class="colour-block"
-        :style="{ 'background-color': colour }
-    ">
+        :style="{ 'background-color': colour }"
+    >
         <input
             type="text"
+            aria-label="RGB Colour"
             :value="colour"
             :style="{
                 color: inputShade,
@@ -17,7 +18,7 @@
             :color="inputShade"
             @click="emit('lock', false)"
         />
-        <unlock 
+        <unlock
             v-else
             class="lock-icon"
             :color="inputShade"

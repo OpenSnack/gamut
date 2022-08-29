@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Color from 'color';
-import { easeQuadOut } from 'd3-ease'
+import { easeQuadOut } from 'd3-ease';
 import { interpolateNumber } from 'd3-interpolate';
 import { interpolateSinebow } from 'd3-scale-chromatic';
 import { format } from 'd3-format';

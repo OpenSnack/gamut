@@ -10,9 +10,11 @@
                 v-for="option in options"
                 :key="option.value"
                 role="radio"
+                :tabindex="0"
                 :aria-checked="option.selected"
                 :class="{ selected: option.selected }"
                 @click="emit('select', option.value)"
+                @keydown.enter="emit('select', option.value)"
             >
                 {{ option.label }}
             </div>

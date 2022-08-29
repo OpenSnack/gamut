@@ -34,7 +34,7 @@ import RefreshIcon from '@/components/RefreshIcon.vue';
 
 const store = useStore();
 const { setRandomLock, refreshRandom } = store;
-const { randomColours, randomLocks } = storeToRefs(store); 
+const { randomColours, randomLocks } = storeToRefs(store);
 </script>
 
 <style lang="postcss" scoped>

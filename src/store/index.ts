@@ -1,6 +1,5 @@
 import { ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import _ from 'lodash';
 import { generateRandomColours } from '@/helpers';
 import type { ScaleMode } from './types';
 
@@ -23,11 +22,12 @@ export default defineStore('main', () => {
             locks[i] = value;
             randomLocks.value = locks;
         }
-    }
+    };
 
     const refreshRandom = () => {
         const lockedColours = [...randomColours.value].filter((c, i) => randomLocks.value[i]);
-        const newColours = generateRandomColours(NUM_RANDOM_COLOURS, lockedColours).slice(lockedColours.length);
+        const newColours = generateRandomColours(NUM_RANDOM_COLOURS, lockedColours)
+            .slice(lockedColours.length);
         randomColours.value = randomColours.value.map((colour, i) => {
             if (randomLocks.value[i]) return colour;
             return newColours.pop() ?? 'black';
@@ -38,7 +38,7 @@ export default defineStore('main', () => {
 
     const setScaleMode = (mode: ScaleMode) => {
         scaleMode.value = mode;
-    }
+    };
 
     return {
         randomColours,
