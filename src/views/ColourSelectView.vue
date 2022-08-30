@@ -11,6 +11,7 @@
                 :colour="colour"
                 :locked="randomLocks[i]"
                 @lock="bool => setRandomLock(i, bool)"
+                @colour-drag="setDrag"
             />
         </div>
         <div class="bottom-row">
@@ -28,11 +29,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import useStore from '@/store';
+import useColourDrag from '@/store/colourDrag';
 import ColourBlock from '@/components/ColourBlock.vue';
 import ClipboardButton from '@/components/ClipboardButton.vue';
 import RefreshIcon from '@/components/RefreshIcon.vue';
 
 const store = useStore();
+const { setDrag } = useColourDrag();
 const { setRandomLock, refreshRandom } = store;
 const { randomColours, randomLocks } = storeToRefs(store);
 </script>

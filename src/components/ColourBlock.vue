@@ -1,7 +1,14 @@
 <template>
+    <!-- the mouse behaviours here will never work on screen readers etc. -->
+    <!-- eslint-disable vuejs-accessibility/mouse-events-have-key-events -->
     <div
         class="colour-block"
+        ref="container"
         :style="{ 'background-color': colour }"
+        @mousedown="onMousedown"
+        @mousemove="startDrag"
+        @mouseleave="startDrag"
+        @mouseup="onMouseup"
     >
         <input
             type="text"
@@ -28,9 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import Color from 'color';
 import { Lock, Unlock } from 'lucide-vue-next';
+import { onLongPress } from '@vueuse/core';
 
 const props = defineProps<{
     colour: string;
@@ -39,8 +47,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'select', colour: string): void,
-    (e: 'lock', locked: boolean): void
+    (e: 'lock', locked: boolean): void,
+    (e: 'colour-drag', colour: string, coords: { x: number; y: number; }): void
 }>();
+
+const container = ref<HTMLDivElement>();
 
 const inputShade = computed(() => {
     if (Color(props.colour).isDark()) {
@@ -48,6 +59,28 @@ const inputShade = computed(() => {
     }
     return 'black';
 });
+
+const mousePressed = ref(false);
+const onMousedown = (e: MouseEvent) => {
+    if (e.target === container.value) {
+        mousePressed.value = true;
+    }
+};
+const onMouseup = () => {
+    mousePressed.value = false;
+};
+
+const startDrag = (e: MouseEvent) => {
+    if (mousePressed.value) {
+        mousePressed.value = false;
+        emit('colour-drag', props.colour, { x: e.x, y: e.y });
+    }
+};
+
+onLongPress(
+    container,
+    e => startDrag(e)
+);
 </script>
 
 <style lang="postcss" scoped>
