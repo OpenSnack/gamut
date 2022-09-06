@@ -32,6 +32,6 @@ const onDrag = (e: MouseEvent) => {
 
 <style lang="postcss" scoped>
 .colour-drag-view {
-    @apply absolute top-0 left-0 w-screen h-screen;
+    @apply fixed top-0 left-0 w-screen h-screen;
 }
 </style>

@@ -39,6 +39,7 @@ import { computed, ref } from 'vue';
 import Color from 'color';
 import { Lock, Unlock } from 'lucide-vue-next';
 import { onLongPress } from '@vueuse/core';
+import type { Coords } from '@/types';
 
 const props = defineProps<{
     colour: string;
@@ -48,7 +49,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'select', colour: string): void,
     (e: 'lock', locked: boolean): void,
-    (e: 'colour-drag', colour: string, coords: { x: number; y: number; }): void
+    (e: 'colour-drag', colour: string, coords: Coords): void
 }>();
 
 const container = ref<HTMLDivElement>();

@@ -1,27 +1,29 @@
 <template>
     <div id="colour-select">
-        <div class="top-row">
-            <div class="group-buttons">
-                <refresh-icon @refresh="refreshRandom" />
+        <div class="left-side">
+            <div class="blocks">
+                <colour-block
+                    v-for="(colour, i) in randomColours"
+                    :key="i"
+                    class="select-block"
+                    :colour="colour"
+                    :locked="randomLocks[i]"
+                    @lock="bool => setRandomLock(i, bool)"
+                    @colour-drag="setDrag"
+                />
             </div>
-            <colour-block
-                v-for="(colour, i) in randomColours"
-                :key="i"
-                class="select-block"
-                :colour="colour"
-                :locked="randomLocks[i]"
-                @lock="bool => setRandomLock(i, bool)"
-                @colour-drag="setDrag"
-            />
+            <div class="copy-palette">
+                <div class="font-sans mr-2 opacity-50">
+                    need a categorical scale?
+                </div>
+                <clipboard-button
+                    label="copy palette to clipboard"
+                    :content="JSON.stringify(randomColours)"
+                />
+            </div>
         </div>
-        <div class="bottom-row">
-            <div class="font-sans mr-2 opacity-50">
-                need a categorical scale?
-            </div>
-            <clipboard-button
-                label="copy palette to clipboard"
-                :content="JSON.stringify(randomColours)"
-            />
+        <div class="group-buttons">
+            <refresh-icon @refresh="refreshRandom" />
         </div>
     </div>
 </template>
@@ -42,20 +44,26 @@ const { randomColours, randomLocks } = storeToRefs(store);
 
 <style lang="postcss" scoped>
 #colour-select {
-    .top-row {
-        @apply flex h-48 mb-4;
+    @apply flex;
 
-        .group-buttons {
-            @apply mr-4;
+    .left-side {
+        @apply flex-1;
+
+        .blocks {
+            @apply flex mb-4;
         }
 
         .select-block {
-            @apply flex-1;
+            @apply flex-1 h-48;
+        }
+
+        .copy-palette {
+            @apply flex justify-end;
         }
     }
 
-    .bottom-row {
-        @apply flex justify-end;
+    .group-buttons {
+        @apply ml-4 h-48;
     }
 }
 </style>

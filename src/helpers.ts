@@ -125,5 +125,14 @@ export function sequentialColourScale(
             // lgt(interp)
         ];
         return hsluvToRgb(hsluvResult);
-    });
+    }).reverse();
+}
+
+export function getFractionalPosition(
+    value: number,
+    start: number,
+    end: number
+): number {
+    if (end === start) return 0;
+    return (value - start) / (end - start);
 }

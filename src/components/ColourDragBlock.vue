@@ -12,9 +12,11 @@
 </template>
 
 <script setup lang="ts">
+import type { Coords } from '@/types';
+
 defineProps<{
     colour: string;
-    coords: { x: number; y: number; };
+    coords: Coords;
     size: number
 }>();
 </script>
