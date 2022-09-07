@@ -37,18 +37,32 @@ export default defineStore('main', () => {
     /* **** SCALE BUILDER **** */
     const scaleMode: Ref<ScaleMode> = ref('sequential');
     const numClasses = ref(5);
+    const useNeutral = ref(false);
     const swatches = ref<Swatches>({
         start: null,
-        middle: null,
-        end: 'rgb(255,255,255)'
+        end: null,
+        neutral: 'rgb(255,255,255)'
     });
 
-    const sequentialScale = computed(
-        () => sequentialColourScale(swatches.value.end, numClasses.value)
-    );
+    const sequentialScale = computed<(string | null)[] | null>(() => {
+        if (swatches.value.end) {
+            return sequentialColourScale(
+                swatches.value.end,
+                numClasses.value,
+                {
+                    startOnWhite: useNeutral.value
+                }
+            );
+        }
+        return null;
+    });
 
     const setScaleMode = (mode: ScaleMode) => {
         scaleMode.value = mode;
+    };
+
+    const setUseNeutral = (mode: boolean) => {
+        useNeutral.value = mode;
     };
 
     const setClasses = (classes: number) => {
@@ -66,12 +80,14 @@ export default defineStore('main', () => {
         randomColours,
         randomLocks,
         scaleMode,
+        useNeutral,
         swatches,
         sequentialScale,
 
         refreshRandom,
         setRandomLock,
         setScaleMode,
+        setUseNeutral,
         setClasses,
         setSwatch
     };

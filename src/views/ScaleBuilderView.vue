@@ -1,18 +1,27 @@
 <template>
     <div id="scale-builder">
-        <button-group
-            class="mb-4"
-            label="scale mode:"
-            :options="options"
-            @select="onSelectMode"
-        />
+        <div class="options">
+            <button-group
+                label="scale mode:"
+                :options="options"
+                @select="onSelectMode"
+            />
+            <label>
+                include neutral colour
+                <input
+                    id="use-neutral"
+                    type="checkbox"
+                    v-model="useNeutral"
+                />
+            </label>
+        </div>
         <div class="scale-view">
             <div class="flex h-full">
                 <div
-                    v-for="c in sequentialScale"
-                    :key="c"
+                    v-for="(c, i) in sequentialScale"
+                    :key="i"
                     class="flex-1"
-                    :style="{ 'background-color': c }"
+                    :style="{ 'background-color': c ? c : 'white' }"
                 />
             </div>
             <div class="highlight-areas">
@@ -45,7 +54,7 @@ const bbox = useElementBounding(dropzone);
 
 const store = useStore();
 const { setScaleMode, setSwatch } = store;
-const { scaleMode, sequentialScale } = storeToRefs(store);
+const { scaleMode, useNeutral, sequentialScale } = storeToRefs(store);
 
 const colourDragStore = useColourDrag();
 const { active, colour, coords } = storeToRefs(colourDragStore);
@@ -97,6 +106,18 @@ watch(active, a => {
 </script>
 
 <style lang="postcss" scoped>
+.options {
+    @apply flex justify-start gap-4 mb-4;
+
+    label {
+        @apply font-sans border border-transparent cursor-pointer;
+    }
+
+    input[type=checkbox] {
+        @apply cursor-pointer;
+    }
+}
+
 .scale-view {
     @apply relative h-24 w-full;
 

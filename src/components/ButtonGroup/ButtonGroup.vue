@@ -1,10 +1,10 @@
 <template>
     <div class="flex">
-        <span class="mr-2">{{ label }}</span>
+        <span class="mr-2 border border-transparent">{{ label }}</span>
         <div
             class="button-group"
             role="radiogroup"
-            aria-label="scale mode"
+            :aria-label="label"
         >
             <div
                 v-for="option in options"

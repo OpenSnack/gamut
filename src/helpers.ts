@@ -99,12 +99,16 @@ export function sequentialColourScale(
     baseColour: string,
     numColours: number,
     options?: {
-        hueShift: number, // -1 to +1 (0)
-        saturationShift?: number, // 0 to 1 (0)
-        lightnessShift?: number // 0 to 1 (1)
+        hueShift?: number; // -1 to +1 (0)
+        saturationShift?: number; // 0 to 1 (0)
+        lightnessShift?: number; // 0 to 1 (1),
+        startOnWhite?: boolean;
     }
 ): string[] | null {
     if (numColours < 3) return null;
+    const addedExtra = options?.startOnWhite === false;
+    const numColoursWithWhite = numColours + (addedExtra ? 1 : 0);
+
     const hueS = _.clamp(options?.hueShift ?? 0, -1, 1);
     const satS = _.clamp(options?.saturationShift ?? 0, 0, 1);
     const lgtS = _.clamp(options?.lightnessShift ?? 1, 0, 1);
@@ -116,8 +120,8 @@ export function sequentialColourScale(
     const sat = interpolateNumber(srcSat, srcSat * (1 - satS));
     const lgt = interpolateNumber(srcLgt, srcLgt + (100 - srcLgt) * lgtS);
 
-    return _.times(numColours, n => {
-        const interp = n / (numColours - 1);
+    return _.times(numColoursWithWhite, n => {
+        const interp = n / (numColoursWithWhite - 1);
         const hsluvResult: HSLuvColour = [
             hue(interp) % 360,
             sat(interp),
@@ -125,7 +129,11 @@ export function sequentialColourScale(
             // lgt(interp)
         ];
         return hsluvToRgb(hsluvResult);
-    }).reverse();
+    })
+        .reverse()
+        .filter(
+            (c, i) => (!addedExtra || i > 0)
+        );
 }
 
 export function getFractionalPosition(
