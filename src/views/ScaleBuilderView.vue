@@ -7,9 +7,19 @@
                 @select="onSelectMode"
             />
             <label>
+                <select v-model="numClasses">
+                    <option
+                        v-for="num in classesOptions"
+                        :key="num"
+                    >
+                        {{ num }}
+                    </option>
+                </select>
+                colours
+            </label>
+            <label class="checkbox">
                 include neutral colour
                 <input
-                    id="use-neutral"
                     type="checkbox"
                     v-model="useNeutral"
                 />
@@ -40,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import _ from 'lodash';
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
@@ -54,18 +65,22 @@ const bbox = useElementBounding(dropzone);
 
 const store = useStore();
 const { setScaleMode, setSwatch } = store;
-const { scaleMode, useNeutral, sequentialScale } = storeToRefs(store);
+const {
+    scaleMode, numClasses, useNeutral, sequentialScale
+} = storeToRefs(store);
 
 const colourDragStore = useColourDrag();
 const { active, colour, coords } = storeToRefs(colourDragStore);
 
-const baseOptions = [
+const modeOptions = [
     { label: 'sequential', value: 'sequential' },
     { label: 'diverging', value: 'diverging' }
 ];
 
+const classesOptions = _.range(3, 11);
+
 const options = computed(
-    () => baseOptions.map(op => ({
+    () => modeOptions.map(op => ({
         ...op,
         selected: scaleMode.value === op.value
     }))
@@ -107,10 +122,18 @@ watch(active, a => {
 
 <style lang="postcss" scoped>
 .options {
-    @apply flex justify-start gap-4 mb-4;
+    @apply flex justify-start gap-8 mb-4;
 
     label {
-        @apply font-sans border border-transparent cursor-pointer;
+        @apply font-sans border border-transparent;
+
+        &.checkbox {
+            @apply cursor-pointer;
+        }
+    }
+
+    select {
+        @apply font-sans;
     }
 
     input[type=checkbox] {
