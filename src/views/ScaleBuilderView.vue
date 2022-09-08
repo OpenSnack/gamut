@@ -30,12 +30,34 @@
         </div>
         <div class="scale-view">
             <div class="flex h-full">
-                <div
+                <svg
                     v-for="(c, i) in scale"
                     :key="i"
                     class="flex-1"
-                    :style="{ 'background-color': c ? c : 'white' }"
-                />
+                    :class="{ 'no-color': !c }"
+                    width="100%"
+                    height="100%"
+                >
+                    <rect
+                        width="100%"
+                        height="100%"
+                        :fill="c ? c : 'white'"
+                        :stroke="c ? 'transparent' : 'rgb(229 231 235)'"
+                        stroke-width="4"
+                        stroke-dasharray="6 14"
+                        stroke-dashoffset="3"
+                        stroke-linecap="square"
+                    />
+                    <rect
+                        v-if="!c"
+                        width="4"
+                        :height="bbox.height.value - 4"
+                        x="100%"
+                        y="2"
+                        :fill="scale && (scale[i + 1] || i === scale.length - 1) ? 'transparent' : 'white'"
+                        :style="{ transform: 'translate(-4px, 0)' }"
+                    />
+                </svg>
             </div>
             <div class="highlight-areas">
                 <div
@@ -148,7 +170,7 @@ watch(active, a => {
     @apply relative h-24 w-full;
 
     .highlight-areas {
-        @apply absolute top-0 w-full h-full;
+        @apply absolute top-0 w-full h-full pointer-events-none;
 
         > div {
             @apply bg-blue-200 bg-opacity-40 pointer-events-none h-full;
@@ -157,6 +179,10 @@ watch(active, a => {
 
     .drop-zone {
         @apply absolute top-0 w-full h-full pointer-events-none;
+    }
+
+    .no-color {
+
     }
 }
 </style>
