@@ -96,17 +96,19 @@ export function generateRandomColours(
 }
 
 export function sequentialColourScale(
-    baseColour: string,
+    baseColour: string | null,
     numColours: number,
     options?: {
         hueShift?: number; // -1 to +1 (0)
         saturationShift?: number; // 0 to 1 (0)
-        lightnessShift?: number; // 0 to 1 (1),
-        startOnWhite?: boolean;
+        lightnessShift?: number; // 0 to 1 (1)
+        useNeutral?: boolean;
     }
-): string[] | null {
-    if (numColours < 3) return null;
-    const addedExtra = options?.startOnWhite === false;
+): (string | null)[] | null {
+    if (numColours < 2) return null;
+    if (!baseColour) return Array<null>(numColours).fill(null);
+
+    const addedExtra = options?.useNeutral === false;
     const numColoursWithWhite = numColours + (addedExtra ? 1 : 0);
 
     const hueS = _.clamp(options?.hueShift ?? 0, -1, 1);
@@ -134,6 +136,47 @@ export function sequentialColourScale(
         .filter(
             (c, i) => (!addedExtra || i > 0)
         );
+}
+
+export function divergingColourScale(
+    startColour: string | null,
+    endColour: string | null,
+    numColours: number,
+    options?: {
+        hueShift?: number; // -1 to +1 (0)
+        saturationShift?: number; // 0 to 1 (0)
+        lightnessShift?: number; // 0 to 1 (1)
+    }
+) {
+    if (numColours < 5) return null;
+    if (!startColour && !endColour) return Array<null>(numColours).fill(null);
+
+    const coloursPerSide = Math.floor(numColours / 2);
+    const startSide = sequentialColourScale(
+        startColour,
+        coloursPerSide,
+        {
+            ...options,
+            useNeutral: false
+        }
+    )?.reverse();
+    const endSide = sequentialColourScale(
+        endColour,
+        coloursPerSide,
+        {
+            ...options,
+            useNeutral: false
+        }
+    );
+    const neutral = startSide || endSide ? 'rgb(255,255,255)' : null;
+
+    return [
+        ...startSide ?? Array<null>(coloursPerSide).fill(null),
+        ...(numColours % 2 === 1
+            ? [neutral]
+            : []),
+        ...endSide ?? Array<null>(coloursPerSide).fill(null)
+    ] as (string | null)[];
 }
 
 export function getFractionalPosition(

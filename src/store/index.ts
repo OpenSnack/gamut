@@ -1,7 +1,6 @@
-import _ from 'lodash';
 import { computed, ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { generateRandomColours, sequentialColourScale } from '@/helpers';
+import { divergingColourScale, generateRandomColours, sequentialColourScale } from '@/helpers';
 import type { Swatches, ScaleMode } from './types';
 
 const NUM_RANDOM_COLOURS = 5 as const;
@@ -44,18 +43,27 @@ export default defineStore('main', () => {
         neutral: 'rgb(255,255,255)'
     });
 
-    const sequentialScale = computed<(string | null)[] | null>(() => {
-        if (swatches.value.end) {
-            return sequentialColourScale(
-                swatches.value.end,
-                Number(numClasses.value),
-                {
-                    startOnWhite: useNeutral.value
-                }
-            );
-        }
-        return null;
-    });
+    const sequentialScale = computed<(string | null)[] | null>(
+        () => sequentialColourScale(
+            swatches.value.end,
+            Number(numClasses.value),
+            {
+                useNeutral: useNeutral.value
+            }
+        ));
+
+    const divergingScale = computed<(string | null)[] | null>(
+        () => divergingColourScale(
+            swatches.value.start,
+            swatches.value.end,
+            Number(numClasses.value)
+        ));
+
+    const scale = computed(
+        () => (scaleMode.value === 'diverging'
+            ? divergingScale.value
+            : sequentialScale.value)
+    );
 
     const setScaleMode = (mode: ScaleMode) => {
         scaleMode.value = mode;
@@ -79,7 +87,9 @@ export default defineStore('main', () => {
         numClasses,
         useNeutral,
         swatches,
+        divergingScale,
         sequentialScale,
+        scale,
 
         refreshRandom,
         setRandomLock,

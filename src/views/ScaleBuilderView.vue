@@ -17,7 +17,10 @@
                 </select>
                 colours
             </label>
-            <label class="checkbox">
+            <label
+                v-if="scaleMode === 'sequential'"
+                class="checkbox"
+            >
                 include neutral colour
                 <input
                     type="checkbox"
@@ -28,7 +31,7 @@
         <div class="scale-view">
             <div class="flex h-full">
                 <div
-                    v-for="(c, i) in sequentialScale"
+                    v-for="(c, i) in scale"
                     :key="i"
                     class="flex-1"
                     :style="{ 'background-color': c ? c : 'white' }"
@@ -66,7 +69,7 @@ const bbox = useElementBounding(dropzone);
 const store = useStore();
 const { setScaleMode, setSwatch } = store;
 const {
-    scaleMode, numClasses, useNeutral, sequentialScale
+    scaleMode, numClasses, useNeutral, scale
 } = storeToRefs(store);
 
 const colourDragStore = useColourDrag();
