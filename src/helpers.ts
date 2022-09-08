@@ -4,7 +4,8 @@ import { easeQuadOut } from 'd3-ease';
 import { interpolateNumber } from 'd3-interpolate';
 import { interpolateSinebow } from 'd3-scale-chromatic';
 import { format } from 'd3-format';
-import hsluv, { hsluvToLch } from 'hsluv';
+import { hsluvToLch } from 'hsluv';
+import { rgbToHsluv, hsluvToRgb } from './format';
 import type { HSLuvColour } from './types';
 
 export const gamutColours = _.range(0, 0.876, 0.125)
@@ -12,24 +13,6 @@ export const gamutColours = _.range(0, 0.876, 0.125)
         colour: Color(interpolateSinebow(n)).lighten(0.4).rgb().string(),
         gradientPct: format('%')(n + 0.05)
     }));
-
-export function rgbToHsluv(hexOrRgb: string): HSLuvColour {
-    const colour = Color.rgb(hexOrRgb);
-    return hsluv.rgbToHsluv([
-        colour.red() / 255,
-        colour.green() / 255,
-        colour.blue() / 255
-    ]);
-}
-
-export function hsluvToRgb(parts: HSLuvColour): string {
-    const pcts = hsluv.hsluvToRgb(parts);
-    return Color.rgb([
-        pcts[0] * 255,
-        pcts[1] * 255,
-        pcts[2] * 255
-    ]).string();
-}
 
 // https://gist.github.com/ryancat/9972419b2a78f329ce3aebb7f1a09152
 export function deltaE(hslA: HSLuvColour, hslB: HSLuvColour): number {

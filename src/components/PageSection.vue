@@ -56,7 +56,7 @@ section {
     }
 
     .section-content {
-        @apply ml-14;
+        @apply ml-14 mb-16;
     }
 }
 </style>

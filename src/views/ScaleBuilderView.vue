@@ -82,7 +82,7 @@ import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import useStore from '@/store';
 import useColourDrag from '@/store/colourDrag';
-import type { ScaleMode, Swatches } from '@/store/types';
+import type { ScaleMode, Swatches } from '@/types';
 import ButtonGroup from '@/components/ButtonGroup/ButtonGroup.vue';
 import { getFractionalPosition } from '@/helpers';
 

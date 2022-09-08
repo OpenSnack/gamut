@@ -20,7 +20,11 @@
         <page-section
             :number="3"
             title="Export your scale"
-        />
+        >
+            <template #content>
+                <export-view />
+            </template>
+        </page-section>
         <colour-drag-view />
     </main>
 </template>
@@ -30,6 +34,7 @@ import GamutLogo from './components/GamutLogo.vue';
 import PageSection from './components/PageSection.vue';
 import ColourSelectView from './views/ColourSelectView.vue';
 import ScaleBuilderView from './views/ScaleBuilderView.vue';
+import ExportView from './views/ExportView.vue';
 import ColourDragView from './views/ColourDragView.vue';
 </script>
 

@@ -1,7 +1,8 @@
-import { computed, ref, type Ref } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { divergingColourScale, generateRandomColours, sequentialColourScale } from '@/helpers';
-import type { Swatches, ScaleMode } from './types';
+import type { Swatches, ScaleMode, ExportFormat } from '@/types';
+import { rgbToFormat } from '@/format';
 
 const NUM_RANDOM_COLOURS = 5 as const;
 type NumRandomColours = typeof NUM_RANDOM_COLOURS;
@@ -34,7 +35,7 @@ export default defineStore('main', () => {
     // TODO: Add reaction when user types new colour into ColourBlock
 
     /* **** SCALE BUILDER **** */
-    const scaleMode: Ref<ScaleMode> = ref('sequential');
+    const scaleMode = ref<ScaleMode>('sequential');
     const numClasses = ref('5');
     const useNeutral = ref(false);
     const swatches = ref<Swatches>({
@@ -80,6 +81,31 @@ export default defineStore('main', () => {
         };
     };
 
+    /* **** EXPORT **** */
+    const exportFormat = ref<ExportFormat>('RGB');
+
+    const convertedColours = computed(() => {
+        if (!scale.value || !scale.value.every(c => c)) return null;
+
+        return (scale.value as string[]).map(c => rgbToFormat[exportFormat.value](c));
+    });
+
+    const coloursAsList = computed(
+        () => (convertedColours.value
+            ? convertedColours.value.join(', ')
+            : '')
+    );
+
+    const coloursAsArray = computed(
+        () => (convertedColours.value
+            ? `[${convertedColours.value.map(c => `'${c}'`).join(', ')}]`
+            : '')
+    );
+
+    const setExportFormat = (format: ExportFormat) => {
+        exportFormat.value = format;
+    };
+
     return {
         randomColours,
         randomLocks,
@@ -90,11 +116,16 @@ export default defineStore('main', () => {
         divergingScale,
         sequentialScale,
         scale,
+        exportFormat,
+        convertedColours,
+        coloursAsList,
+        coloursAsArray,
 
         refreshRandom,
         setRandomLock,
         setScaleMode,
         setUseNeutral,
-        setSwatch
+        setSwatch,
+        setExportFormat
     };
 });

@@ -21,7 +21,8 @@ module.exports = {
         },
         fontFamily: {
             default: ['Bitter', 'serif'],
-            sans: ['Albert Sans', 'sans-serif']
+            sans: ['Albert Sans', 'sans-serif'],
+            mono: ['IBM Plex Mono', 'monospace']
         },
         extend: {
             colors: {

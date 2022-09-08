@@ -18,7 +18,10 @@
                 v-else
             />
         </div>
-        <div class="button-label">
+        <div
+            v-if="label"
+            class="button-label"
+        >
             {{ label }}
         </div>
     </div>
