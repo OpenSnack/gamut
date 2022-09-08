@@ -34,7 +34,6 @@
                     v-for="(c, i) in scale"
                     :key="i"
                     class="flex-1"
-                    :class="{ 'no-color': !c }"
                     width="100%"
                     height="100%"
                 >
@@ -61,9 +60,11 @@
             </div>
             <div class="highlight-areas">
                 <div
-                    v-for="(box, i) in highlightAreas.sequential"
+                    v-for="(box, i) in highlightAreas[scaleMode]"
                     :key="i"
-                    :style="{ visibility: active && highlightArea === i ? 'visible' : 'hidden' }"
+                    :style="{
+                        visibility: active && highlightArea === i ? 'visible' : 'hidden'
+                    }"
                 />
             </div>
             <div
@@ -81,7 +82,7 @@ import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import useStore from '@/store';
 import useColourDrag from '@/store/colourDrag';
-import type { ScaleMode } from '@/store/types';
+import type { ScaleMode, Swatches } from '@/store/types';
 import ButtonGroup from '@/components/ButtonGroup/ButtonGroup.vue';
 import { getFractionalPosition } from '@/helpers';
 
@@ -115,8 +116,9 @@ const onSelectMode = (mode: string) => {
     setScaleMode(mode as ScaleMode);
 };
 
-const highlightAreas = {
-    sequential: ['end']
+const highlightAreas: Record<string, (keyof Swatches)[]> = {
+    sequential: ['end'],
+    diverging: ['start', 'end']
 };
 
 const highlightArea = computed(() => {
@@ -135,12 +137,12 @@ const highlightArea = computed(() => {
     if (xPos < 0 || xPos > 1 || yPos < 0 || yPos > 1) return -1;
 
     // this'll switch between scaleModes
-    return Math.floor(xPos * highlightAreas.sequential.length);
+    return Math.floor(xPos * highlightAreas[scaleMode.value].length);
 });
 
 watch(active, a => {
     if (!a && highlightArea.value >= 0) {
-        setSwatch('end', colour.value);
+        setSwatch(highlightAreas[scaleMode.value][highlightArea.value], colour.value);
     }
 });
 </script>
@@ -170,19 +172,15 @@ watch(active, a => {
     @apply relative h-24 w-full;
 
     .highlight-areas {
-        @apply absolute top-0 w-full h-full pointer-events-none;
+        @apply absolute top-0 flex w-full h-full pointer-events-none;
 
         > div {
-            @apply bg-blue-200 bg-opacity-40 pointer-events-none h-full;
+            @apply bg-blue-200 bg-opacity-40 pointer-events-none w-full h-full;
         }
     }
 
     .drop-zone {
         @apply absolute top-0 w-full h-full pointer-events-none;
-    }
-
-    .no-color {
-
     }
 }
 </style>
