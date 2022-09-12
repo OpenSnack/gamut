@@ -3,6 +3,10 @@
         <span class="mr-2 border border-transparent">{{ label }}</span>
         <div
             class="button-group"
+            :style="{
+                '--selected-colour': colour,
+                '--hover-colour': hoverColour
+            }"
             role="radiogroup"
             :aria-label="label"
         >
@@ -12,7 +16,9 @@
                 role="radio"
                 :tabindex="0"
                 :aria-checked="option.selected"
-                :class="{ selected: option.selected }"
+                :class="{
+                    selected: option.selected
+                }"
                 @click="emit('select', option.value)"
                 @keydown.enter="emit('select', option.value)"
             >
@@ -23,16 +29,23 @@
 </template>
 
 <script setup lang="ts">
+import Color from 'color';
+import { computed } from 'vue';
 import type { ButtonDatum } from './types';
 
-defineProps<{
+const props = withDefaults(defineProps<{
     label: string;
     options: ButtonDatum[];
-}>();
+    colour?: string;
+}>(), {
+    colour: 'rgb(135, 137, 165)'
+});
 
 const emit = defineEmits<{
     (event: 'select', value: string): void;
 }>();
+
+const hoverColour = computed(() => Color(props.colour).alpha(0.25).string());
 </script>
 
 <style lang="postcss" scoped>
@@ -44,7 +57,7 @@ const emit = defineEmits<{
     @apply flex;
 
     > div {
-        @apply text-gray-main border border-transparent px-1;
+        @apply border border-transparent px-1;
 
         &:first-child {
             @apply rounded-l-[4px];
@@ -54,8 +67,13 @@ const emit = defineEmits<{
             @apply rounded-r-[4px];
         }
 
+        &:not(.selected):hover {
+            background-color: var(--hover-colour);
+        }
+
         &.selected {
-            @apply cursor-default border-gray-main bg-gray-main text-white;
+            @apply cursor-default text-white;
+            background-color: var(--selected-colour);
         }
 
         &:not(.selected) {
