@@ -93,13 +93,13 @@ export default defineStore('main', () => {
     const coloursAsList = computed(
         () => (convertedColours.value
             ? convertedColours.value.join(', ')
-            : '')
+            : undefined)
     );
 
     const coloursAsArray = computed(
         () => (convertedColours.value
             ? `[${convertedColours.value.map(c => `'${c}'`).join(', ')}]`
-            : '')
+            : undefined)
     );
 
     const setExportFormat = (format: ExportFormat) => {

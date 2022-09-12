@@ -21,8 +21,14 @@
                 >browser support</a>&nbsp;before using this format
             </div>
         </div>
-        <export-text :content="coloursAsList" />
-        <export-text :content="coloursAsArray" />
+        <export-text
+            :content="coloursAsList"
+            placeholder="build a scale to export"
+        />
+        <export-text
+            :content="coloursAsArray"
+            placeholder="build a scale to export"
+        />
     </div>
 </template>
 
