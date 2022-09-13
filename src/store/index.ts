@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { divergingColourScale, generateRandomColours, sequentialColourScale } from '@/helpers';
@@ -38,6 +39,9 @@ export default defineStore('main', () => {
     const scaleMode = ref<ScaleMode>('sequential');
     const numClasses = ref('5');
     const useNeutral = ref(false);
+    const hueShift = ref(0);
+    const satShift = ref(0);
+    const lgtShift = ref(1);
     const swatches = ref<Swatches>({
         start: null,
         end: null,
@@ -49,6 +53,9 @@ export default defineStore('main', () => {
             swatches.value.end,
             Number(numClasses.value),
             {
+                hueShift: hueShift.value,
+                saturationShift: satShift.value,
+                lightnessShift: lgtShift.value,
                 useNeutral: useNeutral.value
             }
         ));
@@ -57,7 +64,12 @@ export default defineStore('main', () => {
         () => divergingColourScale(
             swatches.value.start,
             swatches.value.end,
-            Number(numClasses.value)
+            Number(numClasses.value),
+            {
+                hueShift: hueShift.value,
+                saturationShift: satShift.value,
+                lightnessShift: lgtShift.value
+            }
         ));
 
     const scale = computed(
@@ -72,6 +84,21 @@ export default defineStore('main', () => {
 
     const setUseNeutral = (mode: boolean) => {
         useNeutral.value = mode;
+    };
+
+    const setHueShift = (value: number) => {
+        // Two-directional shift, 1 == 360deg
+        hueShift.value = _.clamp(value ?? 0, -1, 1);
+    };
+
+    const setSatShift = (value: number) => {
+        // 1 == zero saturation at the light end
+        satShift.value = _.clamp(value ?? 0, 0, 1);
+    };
+
+    const setLgtShift = (value: number) => {
+        // 1 == same brightness at the light end
+        lgtShift.value = _.clamp(value ?? 1, 0, 1);
     };
 
     const setSwatch = (type: keyof Swatches, colour: string) => {
@@ -112,6 +139,9 @@ export default defineStore('main', () => {
         scaleMode,
         numClasses,
         useNeutral,
+        hueShift,
+        satShift,
+        lgtShift,
         swatches,
         divergingScale,
         sequentialScale,
@@ -125,6 +155,9 @@ export default defineStore('main', () => {
         setRandomLock,
         setScaleMode,
         setUseNeutral,
+        setHueShift,
+        setSatShift,
+        setLgtShift,
         setSwatch,
         setExportFormat
     };
