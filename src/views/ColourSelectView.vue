@@ -8,6 +8,7 @@
                     class="select-block"
                     :colour="colour"
                     :locked="randomLocks[i]"
+                    @input="c => onBlockInput(c, i)"
                     @lock="bool => setRandomLock(i, bool)"
                     @colour-drag="setDrag"
                 />
@@ -38,8 +39,12 @@ import RefreshIcon from '@/components/RefreshIcon.vue';
 
 const store = useStore();
 const { setDrag } = useColourDrag();
-const { setRandomLock, refreshRandom } = store;
+const { setRandomColour, setRandomLock, refreshRandom } = store;
 const { randomColours, randomLocks } = storeToRefs(store);
+
+const onBlockInput = (colour: string, i: number) => {
+    setRandomColour(i, colour);
+};
 </script>
 
 <style lang="postcss" scoped>

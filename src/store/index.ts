@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Color from 'color';
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { divergingColourScale, generateRandomColours, sequentialColourScale } from '@/helpers';
@@ -14,6 +15,20 @@ export default defineStore('main', () => {
     /* **** COLOUR SELECT **** */
     const randomColours = ref(generateRandomColours(NUM_RANDOM_COLOURS));
     const randomLocks = ref<Locks>([false, false, false, false, false]);
+
+    const setRandomColour = (i: number, colour: string) => {
+        try {
+            const c = Color(colour);
+            if (i >= 0 && i < NUM_RANDOM_COLOURS) {
+                // color-strnng was able to parse the colour
+                const colourArr = randomColours.value;
+                colourArr[i] = c.rgb().string();
+                randomColours.value = colourArr;
+            }
+        } catch {
+            // do nothing
+        }
+    };
 
     const setRandomLock = (i: number, value: boolean) => {
         if (i >= 0 && i < NUM_RANDOM_COLOURS) {
@@ -151,6 +166,7 @@ export default defineStore('main', () => {
         coloursAsList,
         coloursAsArray,
 
+        setRandomColour,
         refreshRandom,
         setRandomLock,
         setScaleMode,

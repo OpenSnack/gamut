@@ -18,6 +18,7 @@
                 color: inputShade,
                 'border-color': inputShade
             }"
+            @input="onTextInput"
         />
         <lock
             v-if="locked"
@@ -47,7 +48,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'select', colour: string): void,
+    (e: 'input', colour: string): void,
     (e: 'lock', locked: boolean): void,
     (e: 'colour-drag', colour: string, coords: Coords): void
 }>();
@@ -82,6 +83,11 @@ onLongPress(
     container,
     e => startDrag(e)
 );
+
+const onTextInput = (e: Event) => {
+    const { value } = e.target as HTMLInputElement;
+    emit('input', value);
+};
 </script>
 
 <style lang="postcss" scoped>
