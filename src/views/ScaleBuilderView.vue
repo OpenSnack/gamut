@@ -86,6 +86,12 @@
                         @change="setHueShift"
                     />
                 </div>
+                <alert-triangle
+                    class="shift-alert"
+                    :class="{ show: warnHueShift }"
+                    color="rgb(153,27,27)"
+                    size="20"
+                />
                 <div class="shift-label">
                     sat shift
                 </div>
@@ -98,6 +104,12 @@
                         @change="setSatShift"
                     />
                 </div>
+                <alert-triangle
+                    class="shift-alert"
+                    :class="{ show: warnSatShift }"
+                    color="rgb(153,27,27)"
+                    size="20"
+                />
                 <div class="shift-label">
                     lgt shift
                 </div>
@@ -110,6 +122,12 @@
                         @change="setLgtShift"
                     />
                 </div>
+                <alert-triangle
+                    class="shift-alert"
+                    :class="{ show: warnLgtShift }"
+                    color="rgb(153,27,27)"
+                    size="20"
+                />
             </div>
         </div>
     </div>
@@ -119,12 +137,18 @@
 import _ from 'lodash';
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+import { AlertTriangle } from 'lucide-vue-next';
 import { useElementBounding } from '@vueuse/core';
 import VueSlider from 'vue-slider-component';
 import useStore from '@/store';
 import useColourDrag from '@/store/colourDrag';
 import type { ScaleMode, Swatches } from '@/types';
 import ButtonGroup from '@/components/ButtonGroup/ButtonGroup.vue';
+import {
+    RECOMMENDED_HUE_SHIFT,
+    RECOMMENDED_SAT_SHIFT,
+    RECOMMENDED_LGT_SHIFT
+} from '@/constants';
 import { getFractionalPosition } from '@/helpers';
 import 'vue-slider-component/theme/antd.css';
 
@@ -188,6 +212,18 @@ watch(active, a => {
         setSwatch(highlightAreas[scaleMode.value][highlightArea.value], colour.value);
     }
 });
+
+const warnHueShift = computed(
+    () => hueShift.value !== _.clamp(hueShift.value, ...RECOMMENDED_HUE_SHIFT)
+);
+
+const warnSatShift = computed(
+    () => satShift.value !== _.clamp(satShift.value, ...RECOMMENDED_SAT_SHIFT)
+);
+
+const warnLgtShift = computed(
+    () => lgtShift.value !== _.clamp(lgtShift.value, ...RECOMMENDED_LGT_SHIFT)
+);
 </script>
 
 <style lang="postcss" scoped>
@@ -232,7 +268,7 @@ watch(active, a => {
 
     #shift-options {
         @apply grid items-center;
-        grid-template-columns: auto auto;
+        grid-template-columns: auto auto auto;
 
         .shift-label {
             @apply font-sans ml-8 mr-4;
@@ -240,6 +276,14 @@ watch(active, a => {
 
         .shift-slider {
             @apply w-16;
+        }
+
+        .shift-alert {
+            @apply ml-4 invisible;
+
+            &.show {
+                @apply visible;
+            }
         }
     }
 }

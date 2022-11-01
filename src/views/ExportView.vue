@@ -35,11 +35,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
+import { AlertTriangle } from 'lucide-vue-next';
 import ButtonGroup from '@/components/ButtonGroup/ButtonGroup.vue';
 import ExportText from '@/components/ExportText.vue';
 import useStore from '@/store';
 import type { ExportFormat } from '@/types';
-import { AlertTriangle } from 'lucide-vue-next';
 
 const store = useStore();
 const { setExportFormat } = store;

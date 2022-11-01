@@ -1,18 +1,9 @@
 import _ from 'lodash';
-import Color from 'color';
 import { easeQuadOut } from 'd3-ease';
 import { interpolateNumber } from 'd3-interpolate';
-import { interpolateSinebow } from 'd3-scale-chromatic';
-import { format } from 'd3-format';
 import { hsluvToLch } from 'hsluv';
 import { rgbToHsluv, hsluvToRgb } from './format';
 import type { HSLuvColour } from './types';
-
-export const gamutColours = _.range(0, 0.876, 0.125)
-    .map(n => ({
-        colour: Color(interpolateSinebow(n)).lighten(0.4).rgb().string(),
-        gradientPct: format('%')(n + 0.05)
-    }));
 
 // https://gist.github.com/ryancat/9972419b2a78f329ce3aebb7f1a09152
 export function deltaE(hslA: HSLuvColour, hslB: HSLuvColour): number {

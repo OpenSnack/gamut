@@ -1,13 +1,18 @@
 <template>
     <div class="logo">
-        <div class="name">Gamut</div>
-        <div class="rect" :style="{ background: rectGradient }" />
+        <div class="name">
+            Gamut
+        </div>
+        <div
+            class="rect"
+            :style="{ background: rectGradient }"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { gamutColours } from '@/helpers';
+import { gamutColours } from '@/constants';
 
 const rectGradient = computed(() => {
     const gradientValues = gamutColours.map(
