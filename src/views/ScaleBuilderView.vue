@@ -3,7 +3,7 @@
         <div class="options">
             <button-group
                 label="scale mode:"
-                :options="options"
+                :options="modeButtons"
                 @select="onSelectMode"
             />
             <label>
@@ -27,12 +27,17 @@
                     v-model="useNeutral"
                 />
             </label>
+            <button-group
+                label="simulate deficiency:"
+                :options="deficiencyButtons"
+                @select="onSelectDeficiency"
+            />
         </div>
         <div class="scale-row">
             <div class="scale-view">
                 <div class="flex h-full">
                     <svg
-                        v-for="(c, i) in scale"
+                        v-for="(c, i) in colourblindScale"
                         :key="i"
                         class="flex-1"
                         width="100%"
@@ -54,7 +59,7 @@
                             :height="bbox.height.value - 4"
                             x="100%"
                             y="2"
-                            :fill="scale && (scale[i + 1] || i === scale.length - 1) ? 'transparent' : 'white'"
+                            :fill="colourblindScale && (colourblindScale[i + 1] || i === colourblindScale.length - 1) ? 'transparent' : 'white'"
                             :style="{ transform: 'translate(-4px, 0)' }"
                         />
                     </svg>
@@ -151,16 +156,17 @@ import {
 } from '@/constants';
 import { getFractionalPosition } from '@/helpers';
 import 'vue-slider-component/theme/antd.css';
+import type { Deficiency } from '@bjornlu/colorblind';
 
 const dropzone = ref<HTMLDivElement>();
 const bbox = useElementBounding(dropzone);
 
 const store = useStore();
 const {
-    setScaleMode, setSwatch, setHueShift, setSatShift, setLgtShift
+    setScaleMode, setSwatch, setHueShift, setSatShift, setLgtShift, setDeficiency
 } = store;
 const {
-    scaleMode, numClasses, useNeutral, scale, hueShift, satShift, lgtShift
+    scaleMode, numClasses, useNeutral, colourblindScale, hueShift, satShift, lgtShift, deficiency
 } = storeToRefs(store);
 const colourDragStore = useColourDrag();
 const { active, colour, coords } = storeToRefs(colourDragStore);
@@ -170,17 +176,35 @@ const modeOptions = [
     { label: 'diverging', value: 'diverging' }
 ];
 
+const deficiencyOptions: { label: string; value: Deficiency | '' }[] = [
+    { label: 'none', value: '' },
+    { label: 'prot', value: 'protanopia' },
+    { label: 'deut', value: 'deuteranopia' },
+    { label: 'trit', value: 'tritanopia' },
+];
+
 const classesOptions = _.range(3, 11);
 
-const options = computed(
+const modeButtons = computed(
     () => modeOptions.map(op => ({
         ...op,
         selected: scaleMode.value === op.value
     }))
 );
 
+const deficiencyButtons = computed(
+    () => deficiencyOptions.map(op => ({
+        ...op,
+        selected: deficiency.value === (op.value || null)
+    }))
+);
+
 const onSelectMode = (mode: string) => {
     setScaleMode(mode as ScaleMode);
+};
+
+const onSelectDeficiency = (def: string) => {
+    setDeficiency((def || null) as Deficiency | null);
 };
 
 const highlightAreas: Record<string, (keyof Swatches)[]> = {

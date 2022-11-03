@@ -2,9 +2,12 @@ import _ from 'lodash';
 import Color from 'color';
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { divergingColourScale, generateRandomColours, sequentialColourScale } from '@/helpers';
+import {
+    divergingColourScale, generateRandomColours, sequentialColourScale, simulateColourblind
+} from '@/helpers';
 import type { Swatches, ScaleMode, ExportFormat } from '@/types';
 import { rgbToFormat } from '@/format';
+import type { Deficiency } from '@bjornlu/colorblind';
 
 const NUM_RANDOM_COLOURS = 5 as const;
 type NumRandomColours = typeof NUM_RANDOM_COLOURS;
@@ -57,6 +60,7 @@ export default defineStore('main', () => {
     const hueShift = ref(0);
     const satShift = ref(0);
     const lgtShift = ref(1);
+    const deficiency = ref<Deficiency | null>(null);
     const swatches = ref<Swatches>({
         start: null,
         end: null,
@@ -93,6 +97,12 @@ export default defineStore('main', () => {
             : sequentialScale.value)
     );
 
+    const colourblindScale = computed(() => (
+        scale.value
+            ? simulateColourblind(scale.value, deficiency.value)
+            : null
+    ));
+
     const setScaleMode = (mode: ScaleMode) => {
         scaleMode.value = mode;
     };
@@ -114,6 +124,10 @@ export default defineStore('main', () => {
     const setLgtShift = (value: number) => {
         // 1 == same brightness at the light end
         lgtShift.value = _.clamp(value ?? 1, 0, 1);
+    };
+
+    const setDeficiency = (def: Deficiency | null) => {
+        deficiency.value = def;
     };
 
     const setSwatch = (type: keyof Swatches, colour: string) => {
@@ -157,10 +171,12 @@ export default defineStore('main', () => {
         hueShift,
         satShift,
         lgtShift,
+        deficiency,
         swatches,
         divergingScale,
         sequentialScale,
         scale,
+        colourblindScale,
         exportFormat,
         convertedColours,
         coloursAsList,
@@ -174,6 +190,7 @@ export default defineStore('main', () => {
         setHueShift,
         setSatShift,
         setLgtShift,
+        setDeficiency,
         setSwatch,
         setExportFormat
     };

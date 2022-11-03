@@ -1,7 +1,10 @@
 import _ from 'lodash';
 import chroma from 'chroma-js';
+import Color from 'color';
 import { easeQuadOut } from 'd3-ease';
 import { interpolateNumber } from 'd3-interpolate';
+import { simulate, type Deficiency } from '@bjornlu/colorblind';
+import type { RGB } from '@bjornlu/colorblind/dist/types';
 import { rgbToHsluv, hsluvToRgb } from './format';
 import type { HSLuvColour } from './types';
 
@@ -146,4 +149,18 @@ export function getFractionalPosition(
 ): number {
     if (end === start) return 0;
     return (value - start) / (end - start);
+}
+
+export function simulateColourblind(
+    scale: (string | null)[],
+    deficiency: Deficiency | null
+): (string | null)[] {
+    if (!deficiency) return scale;
+    return scale.map(rgb => {
+        if (!rgb) return null;
+
+        const colour = Color(rgb).rgb();
+        const cbRGB = simulate(colour.object() as RGB, deficiency);
+        return Color(cbRGB).rgb().string();
+    });
 }
