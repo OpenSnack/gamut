@@ -8,11 +8,8 @@ import type { RGB } from '@bjornlu/colorblind/dist/types';
 import { rgbToHsluv, hsluvToRgb } from './format';
 import type { HSLuvColour } from './types';
 
-// https://gist.github.com/ryancat/9972419b2a78f329ce3aebb7f1a09152
-export function deltaE(hslA: HSLuvColour, hslB: HSLuvColour): number {
-    const lchA = hsluvToRgb(hslA);
-    const lchB = hsluvToRgb(hslB);
-    return chroma.deltaE(lchA, lchB) / 100; // as 0 -> 1
+export function deltaE(rgbA: string, rgbB: string): number {
+    return chroma.deltaE(rgbA, rgbB) / 100; // as 0 -> 1
 }
 
 export function getRandomColourFromColours(
@@ -29,7 +26,7 @@ export function getRandomColourFromColours(
             _.random(lightness[0], lightness[1], true) * 100
         ];
 
-        if (!rgbColours.some(c => deltaE(randomHSLuvColour, rgbToHsluv(c)) < minDifference)) {
+        if (!rgbColours.some(c => deltaE(hsluvToRgb(randomHSLuvColour), c) < minDifference)) {
             return hsluvToRgb(randomHSLuvColour);
         }
         tries += 1;
@@ -152,15 +149,32 @@ export function getFractionalPosition(
 }
 
 export function simulateColourblind(
-    scale: (string | null)[],
+    colour: string | null,
     deficiency: Deficiency | null
-): (string | null)[] {
-    if (!deficiency) return scale;
-    return scale.map(rgb => {
-        if (!rgb) return null;
+): string | null {
+    if (!colour || !deficiency) return colour;
+    const cbRGB = simulate(Color(colour).rgb().object() as RGB, deficiency);
+    return Color(cbRGB).rgb().string();
+}
 
-        const colour = Color(rgb).rgb();
-        const cbRGB = simulate(colour.object() as RGB, deficiency);
-        return Color(cbRGB).rgb().string();
+export function getColourDifferenceMatrix(scale: (string | null)[]): (number | null)[][] {
+    return scale.map((c1, i) => scale.slice(i + 1).map(c2 => {
+        if (!c1 || !c2) return null;
+
+        return deltaE(c1, c2);
+    }));
+}
+
+export function getColourConflicts(scale: (string | null)[], tolerance: number): boolean[] {
+    // TODO: don't compare middle colour if diverging scale is odd
+    const conflicts = scale.map(() => false);
+    getColourDifferenceMatrix(scale).forEach((arr, i1) => {
+        arr.forEach((n, i2) => {
+            if (n && n < tolerance) {
+                conflicts[i1] = true;
+                conflicts[i1 + i2 + 1] = true;
+            }
+        });
     });
+    return conflicts;
 }

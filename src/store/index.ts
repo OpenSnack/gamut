@@ -1,9 +1,13 @@
 import _ from 'lodash';
 import Color from 'color';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 import {
-    divergingColourScale, generateRandomColours, sequentialColourScale, simulateColourblind
+    divergingColourScale,
+    generateRandomColours,
+    getColourConflicts,
+    sequentialColourScale,
+    simulateColourblind
 } from '@/helpers';
 import type { Swatches, ScaleMode, ExportFormat } from '@/types';
 import { rgbToFormat } from '@/format';
@@ -99,9 +103,20 @@ export default defineStore('main', () => {
 
     const colourblindScale = computed(() => (
         scale.value
-            ? simulateColourblind(scale.value, deficiency.value)
+            ? scale.value.map(c => simulateColourblind(c, deficiency.value))
             : null
     ));
+
+    watch(colourblindScale, s => {
+        if (!s || !scale.value || !deficiency.value) {
+            console.log('no deficiency');
+            return;
+        }
+        console.log(
+            getColourConflicts(scale.value, 0.05),
+            getColourConflicts(s, 0.05)
+        );
+    });
 
     const setScaleMode = (mode: ScaleMode) => {
         scaleMode.value = mode;
