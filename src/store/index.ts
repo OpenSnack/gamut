@@ -5,7 +5,7 @@ import { defineStore } from 'pinia';
 import {
     divergingColourScale,
     generateRandomColours,
-    getColourConflicts,
+    getDivergingColourConflicts,
     sequentialColourScale,
     simulateColourblind
 } from '@/helpers';
@@ -101,21 +101,34 @@ export default defineStore('main', () => {
             : sequentialScale.value)
     );
 
-    const colourblindScale = computed(() => (
+    const colourblindScales = computed<Record<Deficiency, (string | null)[]> | null>(() => (
         scale.value
-            ? scale.value.map(c => simulateColourblind(c, deficiency.value))
-            : null
+            ? {
+                protanopia: scale.value.map(c => simulateColourblind(c, 'protanopia')),
+                deuteranopia: scale.value.map(c => simulateColourblind(c, 'deuteranopia')),
+                tritanopia: scale.value.map(c => simulateColourblind(c, 'tritanopia')),
+                achromatopsia: scale.value.map(c => simulateColourblind(c, 'achromatopsia')),
+            } : null
     ));
 
-    watch(colourblindScale, s => {
-        if (!s || !scale.value || !deficiency.value) {
-            console.log('no deficiency');
+    const activeScale = computed(() => (deficiency.value
+        ? colourblindScales.value?.[deficiency.value] ?? null
+        : scale.value
+    ));
+
+    watch(scale, s => {
+        if (!s || scaleMode.value !== 'diverging') {
+            console.log('N/A');
             return;
         }
-        console.log(
-            getColourConflicts(scale.value, 0.05),
-            getColourConflicts(s, 0.05)
-        );
+        const normalScale = getDivergingColourConflicts(s, 0.02);
+        console.log(normalScale);
+        console.log(_(colourblindScales.value)
+            .mapValues(v => {
+                const conflicts = getDivergingColourConflicts(v, 0.02);
+                return conflicts.map((c, i) => c && !normalScale[i]);
+            })
+            .value());
     });
 
     const setScaleMode = (mode: ScaleMode) => {
@@ -191,7 +204,8 @@ export default defineStore('main', () => {
         divergingScale,
         sequentialScale,
         scale,
-        colourblindScale,
+        activeScale,
+        colourblindScales,
         exportFormat,
         convertedColours,
         coloursAsList,

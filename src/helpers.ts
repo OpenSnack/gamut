@@ -165,10 +165,16 @@ export function getColourDifferenceMatrix(scale: (string | null)[]): (number | n
     }));
 }
 
-export function getColourConflicts(scale: (string | null)[], tolerance: number): boolean[] {
-    // TODO: don't compare middle colour if diverging scale is odd
+export function getDivergingColourConflicts(
+    scale: (string | null)[],
+    tolerance: number
+): boolean[] {
     const conflicts = scale.map(() => false);
-    getColourDifferenceMatrix(scale).forEach((arr, i1) => {
+    const compareScale = scale.map((c, i) => {
+        if (scale.length % 2 === 1 && i === Math.floor(scale.length / 2)) return null;
+        return c;
+    });
+    getColourDifferenceMatrix(compareScale).forEach((arr, i1) => {
         arr.forEach((n, i2) => {
             if (n && n < tolerance) {
                 conflicts[i1] = true;

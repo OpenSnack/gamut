@@ -37,7 +37,7 @@
             <div class="scale-view">
                 <div class="flex h-full">
                     <svg
-                        v-for="(c, i) in colourblindScale"
+                        v-for="(c, i) in activeScale"
                         :key="i"
                         class="flex-1"
                         width="100%"
@@ -59,7 +59,7 @@
                             :height="bbox.height.value - 4"
                             x="100%"
                             y="2"
-                            :fill="colourblindScale && (colourblindScale[i + 1] || i === colourblindScale.length - 1) ? 'transparent' : 'white'"
+                            :fill="activeScale && (activeScale[i + 1] || i === activeScale.length - 1) ? 'transparent' : 'white'"
                             :style="{ transform: 'translate(-4px, 0)' }"
                         />
                     </svg>
@@ -166,7 +166,7 @@ const {
     setScaleMode, setSwatch, setHueShift, setSatShift, setLgtShift, setDeficiency
 } = store;
 const {
-    scaleMode, numClasses, useNeutral, colourblindScale, hueShift, satShift, lgtShift, deficiency
+    scaleMode, numClasses, useNeutral, activeScale, hueShift, satShift, lgtShift, deficiency
 } = storeToRefs(store);
 const colourDragStore = useColourDrag();
 const { active, colour, coords } = storeToRefs(colourDragStore);
@@ -181,6 +181,7 @@ const deficiencyOptions: { label: string; value: Deficiency | '' }[] = [
     { label: 'prot', value: 'protanopia' },
     { label: 'deut', value: 'deuteranopia' },
     { label: 'trit', value: 'tritanopia' },
+    { label: 'achro', value: 'achromatopsia' },
 ];
 
 const classesOptions = _.range(3, 11);
