@@ -2,7 +2,7 @@ import _ from 'lodash';
 import chroma from 'chroma-js';
 import Color from 'color';
 import { easeQuadOut } from 'd3-ease';
-import { interpolateNumber } from 'd3-interpolate';
+import { interpolateNumber, interpolateRgb } from 'd3-interpolate';
 import { simulate, type Deficiency } from '@bjornlu/colorblind';
 import type { RGB } from '@bjornlu/colorblind/dist/types';
 import { rgbToHsluv, hsluvToRgb } from './format';
@@ -157,7 +157,7 @@ export function simulateColourblind(
     return Color(cbRGB).rgb().string();
 }
 
-export function getColourDifferenceMatrix(scale: (string | null)[]): (number | null)[][] {
+export function getFullColourDifferenceMatrix(scale: (string | null)[]): (number | null)[][] {
     return scale.map((c1, i) => scale.slice(i + 1).map(c2 => {
         if (!c1 || !c2) return null;
 
@@ -165,16 +165,48 @@ export function getColourDifferenceMatrix(scale: (string | null)[]): (number | n
     }));
 }
 
+export function getOneSidedColourDifferenceMatrix(
+    scale1: (string | null)[],
+    scale2: (string | null)[]
+): (number | null)[][] {
+    return scale1.map(c1 => scale2.map(c2 => {
+        if (!c1 || !c2) return null;
+
+        return deltaE(c1, c2);
+    }));
+}
+
+function interpolateScale(scale: (string | null)[], betweenColours = 5): (string | null)[] {
+    const outScale: (string | null)[] = [];
+    if (scale.length > 1) {
+        scale.forEach((colour, i) => {
+            const endColour = scale[i + 1];
+            if (colour && endColour) {
+                const interpolator = interpolateRgb(colour, endColour);
+                _.range(0, 1, 1 / (betweenColours + 1)).forEach(n => {
+                    outScale.push(interpolator(n));
+                });
+            } else {
+                outScale.push(colour);
+            }
+        });
+    }
+    return outScale;
+}
+
 export function getDivergingColourConflicts(
     scale: (string | null)[],
     tolerance: number
 ): boolean[] {
-    const conflicts = scale.map(() => false);
     const compareScale = scale.map((c, i) => {
         if (scale.length % 2 === 1 && i === Math.floor(scale.length / 2)) return null;
         return c;
     });
-    getColourDifferenceMatrix(compareScale).forEach((arr, i1) => {
+    const interpolatedScale = interpolateScale(compareScale);
+    const leftSide = interpolatedScale.slice(0, interpolatedScale.length / 2);
+    const rightSide = interpolatedScale.slice(interpolatedScale.length / 2);
+    const conflicts = interpolatedScale.map(() => false);
+    getOneSidedColourDifferenceMatrix(leftSide, rightSide).forEach((arr, i1) => {
         arr.forEach((n, i2) => {
             if (n && n < tolerance) {
                 conflicts[i1] = true;

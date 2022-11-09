@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Color from 'color';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import {
     divergingColourScale,
@@ -14,6 +14,7 @@ import { rgbToFormat } from '@/format';
 import type { Deficiency } from '@bjornlu/colorblind';
 
 const NUM_RANDOM_COLOURS = 5 as const;
+const CONFLICT_TOLERANCE = 0.03;
 type NumRandomColours = typeof NUM_RANDOM_COLOURS;
 type Tuple<T, N extends number> = [T, ...T[]] & { length: N };
 type Locks = Tuple<boolean, NumRandomColours>;
@@ -116,19 +117,18 @@ export default defineStore('main', () => {
         : scale.value
     ));
 
-    watch(scale, s => {
-        if (!s || scaleMode.value !== 'diverging') {
-            console.log('N/A');
-            return;
+    const colourConflicts = computed(() => {
+        if (!scale.value || scaleMode.value !== 'diverging') {
+            return null;
         }
-        const normalScale = getDivergingColourConflicts(s, 0.02);
-        console.log(normalScale);
-        console.log(_(colourblindScales.value)
+        const normalScale = getDivergingColourConflicts(scale.value, CONFLICT_TOLERANCE);
+        return _(colourblindScales.value)
             .mapValues(v => {
-                const conflicts = getDivergingColourConflicts(v, 0.02);
-                return conflicts.map((c, i) => c && !normalScale[i]);
+                const conflicts = getDivergingColourConflicts(v, CONFLICT_TOLERANCE);
+                const differentConflicts = conflicts.map((c, i) => c && !normalScale[i]);
+                return differentConflicts.some(c => c);
             })
-            .value());
+            .value();
     });
 
     const setScaleMode = (mode: ScaleMode) => {
@@ -210,6 +210,7 @@ export default defineStore('main', () => {
         convertedColours,
         coloursAsList,
         coloursAsArray,
+        colourConflicts,
 
         setRandomColour,
         refreshRandom,

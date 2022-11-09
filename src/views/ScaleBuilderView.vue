@@ -166,7 +166,8 @@ const {
     setScaleMode, setSwatch, setHueShift, setSatShift, setLgtShift, setDeficiency
 } = store;
 const {
-    scaleMode, numClasses, useNeutral, activeScale, hueShift, satShift, lgtShift, deficiency
+    scaleMode, numClasses, useNeutral, activeScale,
+    hueShift, satShift, lgtShift, deficiency, colourConflicts
 } = storeToRefs(store);
 const colourDragStore = useColourDrag();
 const { active, colour, coords } = storeToRefs(colourDragStore);
@@ -196,7 +197,10 @@ const modeButtons = computed(
 const deficiencyButtons = computed(
     () => deficiencyOptions.map(op => ({
         ...op,
-        selected: deficiency.value === (op.value || null)
+        selected: deficiency.value === (op.value || null),
+        textFill: op.value !== '' && colourConflicts.value?.[op.value]
+            ? 'red'
+            : undefined
     }))
 );
 

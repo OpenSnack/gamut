@@ -19,6 +19,9 @@
                 :class="{
                     selected: option.selected
                 }"
+                :style="{
+                    color: option.textFill
+                }"
                 @click="emit('select', option.value)"
                 @keydown.enter="emit('select', option.value)"
             >
