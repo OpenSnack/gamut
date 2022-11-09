@@ -167,7 +167,7 @@ const {
 } = store;
 const {
     scaleMode, numClasses, useNeutral, activeScale,
-    hueShift, satShift, lgtShift, deficiency, colourConflicts
+    hueShift, satShift, lgtShift, deficiency, noDeficiencyConflicts, colourblindConflicts
 } = storeToRefs(store);
 const colourDragStore = useColourDrag();
 const { active, colour, coords } = storeToRefs(colourDragStore);
@@ -194,13 +194,21 @@ const modeButtons = computed(
     }))
 );
 
+const getTextFill = (def: Deficiency | '') => {
+    if (def === '') {
+        return noDeficiencyConflicts.value ? 'red' : undefined;
+    }
+    if (colourblindConflicts.value?.[def]) {
+        return 'red';
+    }
+    return undefined;
+};
+
 const deficiencyButtons = computed(
     () => deficiencyOptions.map(op => ({
         ...op,
         selected: deficiency.value === (op.value || null),
-        textFill: op.value !== '' && colourConflicts.value?.[op.value]
-            ? 'red'
-            : undefined
+        textFill: getTextFill(op.value)
     }))
 );
 

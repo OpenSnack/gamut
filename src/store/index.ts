@@ -14,7 +14,7 @@ import { rgbToFormat } from '@/format';
 import type { Deficiency } from '@bjornlu/colorblind';
 
 const NUM_RANDOM_COLOURS = 5 as const;
-const CONFLICT_TOLERANCE = 0.03;
+const CONFLICT_TOLERANCE = 0.05;
 type NumRandomColours = typeof NUM_RANDOM_COLOURS;
 type Tuple<T, N extends number> = [T, ...T[]] & { length: N };
 type Locks = Tuple<boolean, NumRandomColours>;
@@ -117,7 +117,14 @@ export default defineStore('main', () => {
         : scale.value
     ));
 
-    const colourConflicts = computed(() => {
+    const noDeficiencyConflicts = computed(() => {
+        if (!scale.value || scaleMode.value !== 'diverging') {
+            return null;
+        }
+        return getDivergingColourConflicts(scale.value, CONFLICT_TOLERANCE).some(c => c);
+    });
+
+    const colourblindConflicts = computed(() => {
         if (!scale.value || scaleMode.value !== 'diverging') {
             return null;
         }
@@ -210,7 +217,8 @@ export default defineStore('main', () => {
         convertedColours,
         coloursAsList,
         coloursAsArray,
-        colourConflicts,
+        noDeficiencyConflicts,
+        colourblindConflicts,
 
         setRandomColour,
         refreshRandom,
