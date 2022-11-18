@@ -4,6 +4,7 @@ import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import {
     divergingColourScale,
+    divergingCorrectLightness,
     generateRandomColours,
     getDivergingColourConflicts,
     sequentialColourScale,
@@ -18,6 +19,7 @@ const CONFLICT_TOLERANCE = 0.05;
 type NumRandomColours = typeof NUM_RANDOM_COLOURS;
 type Tuple<T, N extends number> = [T, ...T[]] & { length: N };
 type Locks = Tuple<boolean, NumRandomColours>;
+type ColourblindScales = Record<Deficiency, (string | null)[]>;
 
 export default defineStore('main', () => {
     /* **** COLOUR SELECT **** */
@@ -62,6 +64,7 @@ export default defineStore('main', () => {
     const scaleMode = ref<ScaleMode>('sequential');
     const numClasses = ref('5');
     const useNeutral = ref(false);
+    const correctLightness = ref(false);
     const hueShift = ref(0);
     const satShift = ref(0);
     const lgtShift = ref(1);
@@ -102,7 +105,15 @@ export default defineStore('main', () => {
             : sequentialScale.value)
     );
 
-    const colourblindScales = computed<Record<Deficiency, (string | null)[]> | null>(() => (
+    const lightnessCorrectedScale = computed(() => {
+        if (!scale.value) return null;
+
+        return scaleMode.value === 'diverging'
+            ? divergingCorrectLightness(scale.value)
+            : scale.value;
+    });
+
+    const colourblindScales = computed<ColourblindScales | null>(() => (
         scale.value
             ? {
                 protanopia: scale.value.map(c => simulateColourblind(c, 'protanopia')),
@@ -112,10 +123,34 @@ export default defineStore('main', () => {
             } : null
     ));
 
-    const activeScale = computed(() => (deficiency.value
-        ? colourblindScales.value?.[deficiency.value] ?? null
-        : scale.value
+    const lightnessCorrectedColourblindScales = computed<ColourblindScales | null>(() => (
+        lightnessCorrectedScale.value
+            ? {
+                protanopia: lightnessCorrectedScale.value.map(
+                    c => simulateColourblind(c, 'protanopia')
+                ),
+                deuteranopia: lightnessCorrectedScale.value.map(
+                    c => simulateColourblind(c, 'deuteranopia')
+                ),
+                tritanopia: lightnessCorrectedScale.value.map(
+                    c => simulateColourblind(c, 'tritanopia')
+                ),
+                achromatopsia: lightnessCorrectedScale.value.map(
+                    c => simulateColourblind(c, 'achromatopsia')
+                ),
+            } : null
     ));
+
+    const activeScale = computed(() => {
+        if (correctLightness.value) {
+            return deficiency.value
+                ? lightnessCorrectedColourblindScales.value?.[deficiency.value] ?? null
+                : lightnessCorrectedScale.value;
+        }
+        return deficiency.value
+            ? colourblindScales.value?.[deficiency.value] ?? null
+            : scale.value;
+    });
 
     const noDeficiencyConflicts = computed(() => {
         if (!scale.value || scaleMode.value !== 'diverging') {
@@ -129,7 +164,9 @@ export default defineStore('main', () => {
             return null;
         }
         const normalScale = getDivergingColourConflicts(scale.value, CONFLICT_TOLERANCE);
-        return _(colourblindScales.value)
+        // use lightness-corrected scales to get colour conflicts,
+        // otherwise we tend to miss out on some colour similarities
+        return _(lightnessCorrectedColourblindScales.value)
             .mapValues(v => {
                 const conflicts = getDivergingColourConflicts(v, CONFLICT_TOLERANCE);
                 const differentConflicts = conflicts.map((c, i) => c && !normalScale[i]);
@@ -203,6 +240,7 @@ export default defineStore('main', () => {
         scaleMode,
         numClasses,
         useNeutral,
+        correctLightness,
         hueShift,
         satShift,
         lgtShift,
@@ -211,6 +249,7 @@ export default defineStore('main', () => {
         divergingScale,
         sequentialScale,
         scale,
+        lightnessCorrectedScale,
         activeScale,
         colourblindScales,
         exportFormat,

@@ -27,6 +27,13 @@
                     v-model="useNeutral"
                 />
             </label>
+            <label class="checkbox">
+                correct lightness
+                <input
+                    type="checkbox"
+                    v-model="correctLightness"
+                />
+            </label>
             <button-group
                 label="simulate deficiency:"
                 :options="deficiencyButtons"
@@ -166,7 +173,7 @@ const {
     setScaleMode, setSwatch, setHueShift, setSatShift, setLgtShift, setDeficiency
 } = store;
 const {
-    scaleMode, numClasses, useNeutral, activeScale,
+    scaleMode, numClasses, useNeutral, correctLightness, activeScale,
     hueShift, satShift, lgtShift, deficiency, noDeficiencyConflicts, colourblindConflicts
 } = storeToRefs(store);
 const colourDragStore = useColourDrag();
@@ -198,7 +205,7 @@ const getTextFill = (def: Deficiency | '') => {
     if (def === '') {
         return noDeficiencyConflicts.value ? 'red' : undefined;
     }
-    if (colourblindConflicts.value?.[def]) {
+    if (def !== 'achromatopsia' && colourblindConflicts.value?.[def]) {
         return 'red';
     }
     return undefined;

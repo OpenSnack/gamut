@@ -139,6 +139,28 @@ export function divergingColourScale(
     ] as (string | null)[];
 }
 
+export function divergingCorrectLightness(
+    scale: (string | null)[],
+    anchorSide: 'left' | 'right' = 'left'
+): (string | null)[] {
+    if (!scale[0] || !scale.slice(-1)[0]) return scale;
+
+    let hsluvScale = scale.map(c => (c ? rgbToHsluv(c) : null));
+    const len = hsluvScale.length;
+    hsluvScale = hsluvScale.map((c, i) => {
+        if (c) {
+            const newC = c;
+            if ((anchorSide === 'left' && i > Math.floor(len / 2))
+                || (anchorSide === 'right' && i < Math.floor(len / 2))) {
+                newC[2] = hsluvScale[len - 1 - i]?.[2] ?? c[2];
+            }
+            return newC;
+        }
+        return c;
+    });
+    return hsluvScale.map(c => (c ? hsluvToRgb(c) : null));
+}
+
 export function getFractionalPosition(
     value: number,
     start: number,
