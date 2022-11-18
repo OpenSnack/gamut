@@ -6,6 +6,7 @@ export type Coords = {
 };
 
 export type ScaleMode = 'sequential' | 'diverging';
+export type LightnessLock = 'left' | 'right';
 
 export type Swatches = {
     start: string | null;

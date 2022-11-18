@@ -10,7 +10,9 @@ import {
     sequentialColourScale,
     simulateColourblind
 } from '@/helpers';
-import type { Swatches, ScaleMode, ExportFormat } from '@/types';
+import type {
+    Swatches, ScaleMode, ExportFormat, LightnessLock
+} from '@/types';
 import { rgbToFormat } from '@/format';
 import type { Deficiency } from '@bjornlu/colorblind';
 
@@ -64,7 +66,7 @@ export default defineStore('main', () => {
     const scaleMode = ref<ScaleMode>('sequential');
     const numClasses = ref('5');
     const useNeutral = ref(false);
-    const correctLightness = ref(false);
+    const lightnessLock = ref<LightnessLock | null>(null);
     const hueShift = ref(0);
     const satShift = ref(0);
     const lgtShift = ref(1);
@@ -107,10 +109,9 @@ export default defineStore('main', () => {
 
     const lightnessCorrectedScale = computed(() => {
         if (!scale.value) return null;
+        if (scaleMode.value === 'sequential' || !lightnessLock.value) return scale.value;
 
-        return scaleMode.value === 'diverging'
-            ? divergingCorrectLightness(scale.value)
-            : scale.value;
+        return divergingCorrectLightness(scale.value, lightnessLock.value);
     });
 
     const colourblindScales = computed<ColourblindScales | null>(() => (
@@ -142,7 +143,7 @@ export default defineStore('main', () => {
     ));
 
     const activeScale = computed(() => {
-        if (correctLightness.value) {
+        if (lightnessLock.value) {
             return deficiency.value
                 ? lightnessCorrectedColourblindScales.value?.[deficiency.value] ?? null
                 : lightnessCorrectedScale.value;
@@ -181,6 +182,14 @@ export default defineStore('main', () => {
 
     const setUseNeutral = (mode: boolean) => {
         useNeutral.value = mode;
+    };
+
+    const setOrToggleLightnessLock = (lock: LightnessLock | null) => {
+        if (lightnessLock.value && lightnessLock.value === lock) {
+            lightnessLock.value = null;
+        } else {
+            lightnessLock.value = lock;
+        }
     };
 
     const setHueShift = (value: number) => {
@@ -240,7 +249,7 @@ export default defineStore('main', () => {
         scaleMode,
         numClasses,
         useNeutral,
-        correctLightness,
+        lightnessLock,
         hueShift,
         satShift,
         lgtShift,
@@ -264,6 +273,7 @@ export default defineStore('main', () => {
         setRandomLock,
         setScaleMode,
         setUseNeutral,
+        setOrToggleLightnessLock,
         setHueShift,
         setSatShift,
         setLgtShift,
