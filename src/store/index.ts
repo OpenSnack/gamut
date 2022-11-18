@@ -6,6 +6,7 @@ import {
     divergingColourScale,
     divergingCorrectLightness,
     generateRandomColours,
+    getDarkerSide,
     getDivergingColourConflicts,
     sequentialColourScale,
     simulateColourblind
@@ -106,11 +107,9 @@ export default defineStore('main', () => {
             : sequentialScale.value)
     );
 
-    const lightnessCorrectedScale = computed(() => {
+    const darkerScaleSide = computed<LightnessLock | null>(() => {
         if (!scale.value) return null;
-        if (scaleMode.value === 'sequential' || !lightnessLock.value) return scale.value;
-
-        return divergingCorrectLightness(scale.value, lightnessLock.value);
+        return getDarkerSide(scale.value);
     });
 
     const colourblindScales = computed<ColourblindScales | null>(() => (
@@ -123,29 +122,62 @@ export default defineStore('main', () => {
             } : null
     ));
 
-    const lightnessCorrectedColourblindScales = computed<ColourblindScales | null>(() => (
-        lightnessCorrectedScale.value
+    // keep lightness-corrected scales for both lightness lock sides so
+    // we can pick the darker one and use it to calculate colour conflicts
+    const lightnessCorrectedScales = computed(() => {
+        if (!scale.value) return null;
+        if (scaleMode.value === 'sequential') {
+            return {
+                left: scale.value,
+                right: scale.value
+            };
+        }
+
+        return {
+            left: divergingCorrectLightness(scale.value, 'left'),
+            right: divergingCorrectLightness(scale.value, 'right')
+        };
+    });
+
+    const lightnessCorrectedColourblindScales = computed(() => (
+        lightnessCorrectedScales.value
             ? {
-                protanopia: lightnessCorrectedScale.value.map(
-                    c => simulateColourblind(c, 'protanopia')
-                ),
-                deuteranopia: lightnessCorrectedScale.value.map(
-                    c => simulateColourblind(c, 'deuteranopia')
-                ),
-                tritanopia: lightnessCorrectedScale.value.map(
-                    c => simulateColourblind(c, 'tritanopia')
-                ),
-                achromatopsia: lightnessCorrectedScale.value.map(
-                    c => simulateColourblind(c, 'achromatopsia')
-                ),
+                left: {
+                    protanopia: lightnessCorrectedScales.value.left.map(
+                        c => simulateColourblind(c, 'protanopia')
+                    ),
+                    deuteranopia: lightnessCorrectedScales.value.left.map(
+                        c => simulateColourblind(c, 'deuteranopia')
+                    ),
+                    tritanopia: lightnessCorrectedScales.value.left.map(
+                        c => simulateColourblind(c, 'tritanopia')
+                    ),
+                    achromatopsia: lightnessCorrectedScales.value.left.map(
+                        c => simulateColourblind(c, 'achromatopsia')
+                    ),
+                },
+                right: {
+                    protanopia: lightnessCorrectedScales.value.right.map(
+                        c => simulateColourblind(c, 'protanopia')
+                    ),
+                    deuteranopia: lightnessCorrectedScales.value.right.map(
+                        c => simulateColourblind(c, 'deuteranopia')
+                    ),
+                    tritanopia: lightnessCorrectedScales.value.right.map(
+                        c => simulateColourblind(c, 'tritanopia')
+                    ),
+                    achromatopsia: lightnessCorrectedScales.value.right.map(
+                        c => simulateColourblind(c, 'achromatopsia')
+                    ),
+                }
             } : null
     ));
 
     const activeScale = computed(() => {
         if (lightnessLock.value) {
-            return deficiency.value
-                ? lightnessCorrectedColourblindScales.value?.[deficiency.value] ?? null
-                : lightnessCorrectedScale.value;
+            return (deficiency.value
+                ? lightnessCorrectedColourblindScales.value?.[lightnessLock.value][deficiency.value]
+                : lightnessCorrectedScales.value?.[lightnessLock.value]) ?? null;
         }
         return deficiency.value
             ? colourblindScales.value?.[deficiency.value] ?? null
@@ -160,13 +192,20 @@ export default defineStore('main', () => {
     });
 
     const colourblindConflicts = computed(() => {
-        if (!scale.value || scaleMode.value !== 'diverging') {
+        if (!lightnessCorrectedScales.value
+            || !lightnessCorrectedColourblindScales.value
+            || !darkerScaleSide.value
+            || scaleMode.value !== 'diverging'
+        ) {
             return null;
         }
-        const normalScale = getDivergingColourConflicts(scale.value, CONFLICT_TOLERANCE);
-        // use lightness-corrected scales to get colour conflicts,
-        // otherwise we tend to miss out on some colour similarities
-        return _(lightnessCorrectedColourblindScales.value)
+        const normalScale = getDivergingColourConflicts(
+            lightnessCorrectedScales.value[darkerScaleSide.value],
+            CONFLICT_TOLERANCE
+        );
+        // use lightness-corrected scales to get colour conflicts, otherwise we tend to miss out
+        // on some colour similarities. use darker lightness-correction for greater colour coverage
+        return _(lightnessCorrectedColourblindScales.value[darkerScaleSide.value])
             .mapValues(v => {
                 const conflicts = getDivergingColourConflicts(v, CONFLICT_TOLERANCE);
                 const differentConflicts = conflicts.map((c, i) => c && !normalScale[i]);
@@ -257,7 +296,7 @@ export default defineStore('main', () => {
         divergingScale,
         sequentialScale,
         scale,
-        lightnessCorrectedScale,
+        lightnessCorrectedScales,
         activeScale,
         colourblindScales,
         exportFormat,

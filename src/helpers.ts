@@ -7,6 +7,7 @@ import { simulate, type Deficiency } from '@bjornlu/colorblind';
 import type { RGB } from '@bjornlu/colorblind/dist/types';
 import { rgbToHsluv, hsluvToRgb } from './format';
 import type { HSLuvColour } from './types';
+import type { LightnessLock } from './components/ScaleDisplay/types';
 
 export function deltaE(rgbA: string, rgbB: string): number {
     return chroma.deltaE(rgbA, rgbB) / 100; // as 0 -> 1
@@ -159,6 +160,15 @@ export function divergingCorrectLightness(
         return c;
     });
     return hsluvScale.map(c => (c ? hsluvToRgb(c) : null));
+}
+
+export function getDarkerSide(scale: (string | null)[]): LightnessLock | null {
+    const left = scale[0];
+    const right = scale[scale.length - 1];
+    if (!left || !right) return null;
+
+    if (rgbToHsluv(left)[2] <= rgbToHsluv(right)[2]) return 'left';
+    return 'right';
 }
 
 export function getFractionalPosition(
