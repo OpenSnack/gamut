@@ -35,74 +35,12 @@
         </div>
         <div class="scale-row">
             <div class="scale-view">
-                <div class="flex h-full">
-                    <div
-                        v-for="(c, i) in activeScale"
-                        :key="i"
-                        class="flex-1 h-full"
-                    >
-                        <svg
-                            width="100%"
-                            height="100%"
-                        >
-                            <rect
-                                width="calc(100% + 1px)"
-                                height="100%"
-                                :fill="c ? c : 'white'"
-                                :stroke="c ? 'transparent' : 'rgb(229 231 235)'"
-                                stroke-width="4"
-                                stroke-dasharray="6 14"
-                                stroke-dashoffset="3"
-                                stroke-linecap="square"
-                            />
-                            <rect
-                                v-if="!c"
-                                width="4"
-                                :height="bbox.height.value - 4"
-                                x="100%"
-                                y="2"
-                                :fill="activeScale && (activeScale[i + 1] || i === activeScale.length - 1) ? 'transparent' : 'white'"
-                                :style="{ transform: 'translate(-4px, 0)' }"
-                            />
-                        </svg>
-                        <div
-                            v-if="scaleMode === 'diverging' && c && i === 0"
-                            class="lightness-lock left-1"
-                            @click="setOrToggleLightnessLock('left')"
-                            @keypress="setOrToggleLightnessLock('left')"
-                        >
-                            <sun
-                                :color="getButtonShade(c)"
-                            />
-                            <lock
-                                v-if="lightnessLock === 'left'"
-                                :color="getButtonShade(c)"
-                            />
-                            <unlock
-                                v-else
-                                :color="getButtonShade(c)"
-                            />
-                        </div>
-                        <div
-                            v-if="scaleMode === 'diverging' && c && activeScale && i === activeScale.length - 1"
-                            class="lightness-lock right-1"
-                            @click="setOrToggleLightnessLock('right')"
-                            @keypress="setOrToggleLightnessLock('right')"
-                        >
-                            <sun
-                                :color="getButtonShade(c)"
-                            />
-                            <lock
-                                v-if="lightnessLock === 'right'"
-                                :color="getButtonShade(c)"
-                            />
-                            <unlock
-                                v-else
-                                :color="getButtonShade(c)"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <scale-display
+                    :scale="activeScale"
+                    :scale-mode="scaleMode"
+                    :lightness-lock="lightnessLock"
+                    @lightness-lock="setOrToggleLightnessLock"
+                />
                 <div class="highlight-areas">
                     <div
                         v-for="(box, i) in highlightAreas[scaleMode]"
@@ -181,14 +119,14 @@
 import _ from 'lodash';
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import {
-    AlertTriangle, Sun, Lock, Unlock
-} from 'lucide-vue-next';
+import { AlertTriangle } from 'lucide-vue-next';
 import { useElementBounding } from '@vueuse/core';
 import VueSlider from 'vue-slider-component';
 import useStore from '@/store';
 import useColourDrag from '@/store/colourDrag';
-import type { ScaleMode, Swatches } from '@/types';
+import type { Swatches } from '@/types';
+import type { ScaleMode } from '@/components/ScaleDisplay/types';
+import ScaleDisplay from '@/components/ScaleDisplay/ScaleDisplay.vue';
 import ButtonGroup from '@/components/ButtonGroup/ButtonGroup.vue';
 import {
     RECOMMENDED_HUE_SHIFT,
@@ -198,7 +136,6 @@ import {
 import { getFractionalPosition } from '@/helpers';
 import 'vue-slider-component/theme/antd.css';
 import type { Deficiency } from '@bjornlu/colorblind';
-import Color from 'color';
 
 const dropzone = ref<HTMLDivElement>();
 const bbox = useElementBounding(dropzone);
@@ -245,13 +182,6 @@ const getTextFill = (def: Deficiency | '') => {
         return 'red';
     }
     return undefined;
-};
-
-const getButtonShade = (c: string) => {
-    if (Color(c).isDark()) {
-        return 'white';
-    }
-    return 'black';
 };
 
 const deficiencyButtons = computed(
@@ -350,10 +280,6 @@ const warnLgtShift = computed(
 
         .drop-zone {
             @apply absolute top-0 w-full h-full pointer-events-none;
-        }
-
-        .lightness-lock {
-            @apply absolute flex bottom-1 cursor-pointer;
         }
     }
 

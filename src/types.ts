@@ -5,9 +5,6 @@ export type Coords = {
     y: number;
 };
 
-export type ScaleMode = 'sequential' | 'diverging';
-export type LightnessLock = 'left' | 'right';
-
 export type Swatches = {
     start: string | null;
     end: string | null;

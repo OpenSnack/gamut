@@ -10,9 +10,8 @@ import {
     sequentialColourScale,
     simulateColourblind
 } from '@/helpers';
-import type {
-    Swatches, ScaleMode, ExportFormat, LightnessLock
-} from '@/types';
+import type { Swatches, ExportFormat } from '@/types';
+import type { ScaleMode, LightnessLock } from '@/components/ScaleDisplay/types';
 import { rgbToFormat } from '@/format';
 import type { Deficiency } from '@bjornlu/colorblind';
 
